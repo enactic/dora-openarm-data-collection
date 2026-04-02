@@ -143,8 +143,8 @@ nodes:
       - image
 
   - id: recorder
-    # build: pip install -e nodes/dora-openarm-dataset-recorder
-    build: pip install dora-openarm-dataset-recorder
+    build: pip install -e nodes/dora-openarm-dataset-recorder
+    # build: pip install dora-openarm-dataset-recorder
     path: dora-openarm-dataset-recorder
     env:
       METADATA_FILE: "metadata.yaml"
