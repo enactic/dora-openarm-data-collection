@@ -1,0 +1,18 @@
+[submodule "nodes/dora-openarm-data-collection-ui"]
+	path = nodes/dora-openarm-data-collection-ui
+	url = https://github.com/enactic/dora-openarm-data-collection-ui.git
+[submodule "nodes/dora-openarm-quitter"]
+	path = nodes/dora-openarm-quitter
+	url = https://github.com/enactic/dora-openarm-quitter.git
+[submodule "nodes/dora-openarm-dummy-ker"]
+	path = nodes/dora-openarm-dummy-ker
+	url = https://github.com/enactic/dora-openarm-dummy-ker.git
+[submodule "nodes/dora-openarm-dummy"]
+	path = nodes/dora-openarm-dummy
+	url = https://github.com/enactic/dora-openarm-dummy.git
+[submodule "nodes/dora-openarm-dummy-camera"]
+	path = nodes/dora-openarm-dummy-camera
+	url = https://github.com/enactic/dora-openarm-dummy-camera.git
+[submodule "nodes/dora-openarm-dataset-recorder"]
+	path = nodes/dora-openarm-dataset-recorder
+	url = https://github.com/enactic/dora-openarm-dataset-recorder.git

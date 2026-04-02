@@ -1,0 +1,53 @@
+# Copyright 2026 Enactic, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Test
+on:
+  push:
+  pull_request:
+concurrency:
+  group: ${{ github.head_ref || github.sha }}-${{ github.workflow }}
+  cancel-in-progress: true
+jobs:
+  run:
+    name: Run
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+      - name: Install dora-rs-cli
+        run: |
+          pip install dora-rs-cli
+      - name: Build
+        run: |
+          dora build dataflow_dummy.yaml
+      - name: Run
+        run: |
+          dora run dataflow_dummy.yaml &
+          sleep 5
+          curl -X POST http://127.0.0.1:8000/start
+          sleep 1
+          curl -X POST http://127.0.0.1:8000/success
+          sleep 3
+          curl -X POST http://127.0.0.1:8000/quit
+          wait
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dataset
+          path: dataset/
