@@ -1,0 +1,173 @@
+# Copyright 2026 Enactic, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+nodes:
+  - id: ui
+    build: pip install -e nodes/dora-openarm-data-collection-ui
+    # build: pip install dora-openarm-data-collection-ui
+    path: dora-openarm-data-collection-ui
+    env:
+      METADATA_FILE: "metadata.yaml"
+    inputs:
+      # We need at least one input to keep this node alive.
+      tick: dora/timer/secs/1
+    outputs:
+      - command
+
+  - id: quittable-tick-leader
+    build: pip install -e nodes/dora-openarm-quitter
+    # build: pip install dora-openarm-quitter
+    path: dora-openarm-quitter
+    inputs:
+      command: ui/command
+      # 250Hz
+      tick: dora/timer/millis/4
+    outputs:
+      - tick
+
+  - id: quittable-tick-camera
+    build: pip install -e nodes/dora-openarm-quitter
+    # build: pip install dora-openarm-quitter
+    path: dora-openarm-quitter
+    inputs:
+      command: ui/command
+      # tick: dora/timer/millis/200 # 5Hz
+      tick: dora/timer/millis/33 # 30fps
+    outputs:
+      - tick
+
+  - id: leader
+    build: pip install -e nodes/dora-openarm-ker
+    # build: pip install dora-openarm-ker
+    path: dora-openarm-ker
+    # Please configure!
+    args: "--device /dev/ker --config /path/to/mapping.yaml"
+    inputs:
+      tick: quittable-tick-leader/tick
+    outputs:
+      - left_position
+      - right_position
+      - left_follower_position
+      - right_follower_position
+      - joystick_x
+      - joystick_y
+      - joystick_button
+
+  - id: follower-right
+    build: pip install -e nodes/dora-openarm
+    # build: pip install dora-openarm
+    path: dora-openarm
+    # Please configure!
+    args: "--side right --align-trigger gripper --config /path/to/config.yaml"
+    inputs:
+      # Event ID is only used. Event value isn't used.
+      request_position: leader/right_follower_position
+      move_position: leader/right_follower_position
+    outputs:
+      - position
+      - status
+
+  - id: camera-wrist-right
+    build: pip install opencv-video-capture
+    path: opencv-video-capture
+    env:
+      # Please configure!
+      CAPTURE_PATH: "/dev/camera_wrist_right"
+      ENCODING: "jpeg"
+      IMAGE_HEIGHT: 600
+      IMAGE_WIDTH: 960
+      JPEG_QUALITY: 90
+    inputs:
+      tick: quittable-tick-camera/tick
+    outputs:
+      - image
+
+  - id: follower-left
+    build: pip install -e nodes/dora-openarm
+    # build: pip install dora-openarm
+    path: dora-openarm
+    # Please configure!
+    args: "--side left --align-trigger gripper --config /path/to/config.yaml"
+    inputs:
+      # Event ID is only used. Event value isn't used.
+      request_position: leader/left_follower_position
+      move_position: leader/left_follower_position
+    outputs:
+      - position
+      - status
+
+  - id: camera-wrist-left
+    build: pip install opencv-video-capture
+    path: opencv-video-capture
+    env:
+      # Please configure!
+      CAPTURE_PATH: "/dev/camera_wrist_left"
+      ENCODING: "jpeg"
+      IMAGE_HEIGHT: 600
+      IMAGE_WIDTH: 960
+      JPEG_QUALITY: 90
+    inputs:
+      tick: quittable-tick-camera/tick
+    outputs:
+      - image
+
+  - id: camera-head
+    build: pip install opencv-video-capture
+    path: opencv-video-capture
+    inputs:
+      tick: quittable-tick-camera/tick
+    env:
+      # Please configure!
+      CAPTURE_PATH: "/dev/camera_head"
+      ENCODING: "jpeg"
+      IMAGE_HEIGHT: 600
+      IMAGE_WIDTH: 960
+      JPEG_QUALITY: 90
+    outputs:
+      - image
+
+  - id: camera-ceiling
+    build: pip install opencv-video-capture
+    path: opencv-video-capture
+    env:
+      # Please configure!
+      CAPTURE_PATH: "/dev/camera_ceiling"
+      ENCODING: "jpeg"
+      IMAGE_HEIGHT: 600
+      IMAGE_WIDTH: 960
+      JPEG_QUALITY: 90
+    inputs:
+      tick: quittable-tick-camera/tick
+    outputs:
+      - image
+
+  - id: recorder
+    build: pip install -e nodes/dora-openarm-dataset-recorder
+    # build: pip install dora-openarm-dataset-recorder
+    path: dora-openarm-dataset-recorder
+    env:
+      METADATA_FILE: "metadata.yaml"
+      # Output directory for recorded datasets.
+      # Default: directory containing dataflow.yaml
+      # DIRECTORY: "/path/to/datasets"
+    inputs:
+      command: ui/command
+      arm_right_action: leader/right_follower_position
+      arm_right_observation: follower-right/position
+      camera_wrist_right: camera-wrist-right/image
+      arm_left_action: leader/left_follower_position
+      arm_left_observation: follower-left/position
+      camera_wrist_left: camera-wrist-left/image
+      camera_head: camera-head/image
+      camera_ceiling: camera-ceiling/image

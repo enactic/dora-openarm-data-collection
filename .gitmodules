@@ -16,3 +16,9 @@
 [submodule "nodes/dora-openarm-dataset-recorder"]
 	path = nodes/dora-openarm-dataset-recorder
 	url = https://github.com/enactic/dora-openarm-dataset-recorder.git
+[submodule "nodes/dora-openarm"]
+	path = nodes/dora-openarm
+	url = https://github.com/enactic/dora-openarm.git
+[submodule "nodes/dora-openarm-ker"]
+	path = nodes/dora-openarm-ker
+	url = https://github.com/enactic/dora-openarm-ker.git
