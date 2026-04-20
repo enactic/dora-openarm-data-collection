@@ -26,7 +26,7 @@ equipment:
       version: "2.0"
   perceptions:
     cameras:
-      left_wrist: {}
-      right_wrist: {}
+      wrist_left: {}
+      wrist_right: {}
       ceiling: {}
       head: {}
