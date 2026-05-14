@@ -63,7 +63,7 @@ jobs:
         run: |
           set -euo pipefail
           title="ci: update submodules"
-          body=$'## Summary\n- Update git submodules to their latest upstream commits\n\nThis pull request was generated automatically.'
+          body=$'## Summary\n- update git submodules to their latest upstream commits\n\nThis pull request was generated automatically.'
           if ! base_branch="$(gh repo view "$GITHUB_REPOSITORY" --json defaultBranchRef --jq '.defaultBranchRef.name')"; then
             echo "Failed to resolve repository default branch." >&2
             exit 1
