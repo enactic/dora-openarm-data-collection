@@ -52,7 +52,7 @@ jobs:
           git checkout -B ci/update-submodules
           git add .
           git commit -m "ci: update submodules"
-          git push --force-with-lease origin ci/update-submodules
+          git push --force origin ci/update-submodules
 
           echo "has_changes=true" >> "$GITHUB_OUTPUT"
 
@@ -61,11 +61,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           title="ci: update submodules"
           body=$'## Summary\n- update git submodules to their latest upstream commits\n\nThis pull request was generated automatically.'
           base_branch="${{ github.event.repository.default_branch }}"
 
-          pr_number="$(gh pr list --head ci/update-submodules --base "$base_branch" --state open --json number --jq '.[0].number')"
+          pr_number="$(gh pr list --head ci/update-submodules --base "$base_branch" --state open --limit 1 --json number --jq '.[0].number // empty')"
 
           if [ -n "$pr_number" ]; then
             gh pr edit "$pr_number" --title "$title" --body "$body"
