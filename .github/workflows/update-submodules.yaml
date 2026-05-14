@@ -38,15 +38,37 @@ jobs:
           git submodule sync --recursive
           git submodule update --init --recursive --remote
 
-      - name: Create pull request
-        uses: peter-evans/create-pull-request@v7
-        with:
-          commit-message: "ci: update submodules"
-          title: "ci: update submodules"
-          body: |
-            ## Summary
-            - update git submodules to their latest upstream commits
+      - name: Commit updated submodules
+        id: commit
+        run: |
+          if git diff --quiet --exit-code; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
 
-            This pull request was generated automatically.
-          branch: ci/update-submodules
-          delete-branch: true
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout -B ci/update-submodules
+          git add .
+          git commit -m "ci: update submodules"
+          git push --force-with-lease origin ci/update-submodules
+
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update pull request
+        if: steps.commit.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="ci: update submodules"
+          body=$'## Summary\n- update git submodules to their latest upstream commits\n\nThis pull request was generated automatically.'
+          base_branch="${{ github.event.repository.default_branch }}"
+
+          pr_number="$(gh pr list --head ci/update-submodules --base "$base_branch" --state open --json number --jq '.[0].number')"
+
+          if [ -n "$pr_number" ]; then
+            gh pr edit "$pr_number" --title "$title" --body "$body"
+          else
+            gh pr create --head ci/update-submodules --base "$base_branch" --title "$title" --body "$body"
+          fi
