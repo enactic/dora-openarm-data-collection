@@ -50,8 +50,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git checkout -B ci/update-submodules
-          git add .gitmodules
-          git submodule foreach --recursive 'git -C "$toplevel" add "$sm_path"'
+          git add --all .gitmodules nodes/
           git commit -m "ci: update submodules"
           git push --force origin ci/update-submodules
 
@@ -64,16 +63,23 @@ jobs:
         run: |
           set -euo pipefail
           title="ci: update submodules"
-          body=$'## Summary\n- update git submodules to their latest upstream commits\n\nThis pull request was generated automatically.'
+          body=$'## Summary\n- Update git submodules to their latest upstream commits\n\nThis pull request was generated automatically.'
           if ! base_branch="$(gh repo view "$GITHUB_REPOSITORY" --json defaultBranchRef --jq '.defaultBranchRef.name')"; then
             echo "Failed to resolve repository default branch." >&2
             exit 1
           fi
 
-          if ! pr_number="$(gh pr list --head ci/update-submodules --base "$base_branch" --state open --json number --jq 'if length == 0 then "" elif length == 1 then .[0].number else error("multiple open PRs found for ci/update-submodules") end')"; then
+          if ! mapfile -t pr_numbers < <(gh pr list --head ci/update-submodules --base "$base_branch" --state open --json number --jq '.[].number'); then
             echo "Failed to query existing pull requests." >&2
             exit 1
           fi
+
+          if [ "${#pr_numbers[@]}" -gt 1 ]; then
+            echo "Multiple open pull requests found for ci/update-submodules against $base_branch." >&2
+            exit 1
+          fi
+
+          pr_number="${pr_numbers[0]:-}"
 
           if [ -n "$pr_number" ]; then
             gh pr edit "$pr_number" --title "$title" --body "$body"
