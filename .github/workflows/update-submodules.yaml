@@ -58,6 +58,7 @@ jobs:
 
       - name: Create or update pull request
         if: steps.commit.outputs.has_changes == 'true'
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
