@@ -76,11 +76,14 @@ jobs:
             exit 1
           fi
 
-          pr_numbers=()
-          if ! mapfile -t pr_numbers < <(gh pr list --head ci/update-submodules --base "$base_branch" --state open --json number --jq '.[].number'); then
+          pr_list=""
+          if ! pr_list="$(gh pr list --head ci/update-submodules --base "$base_branch" --state open --json number --jq '.[].number')"; then
             echo "Failed to query existing pull requests." >&2
             exit 1
           fi
+
+          pr_numbers=()
+          mapfile -t pr_numbers <<< "$pr_list"
 
           if [ "${#pr_numbers[@]}" -gt 1 ]; then
             echo "Multiple open pull requests found for ci/update-submodules against $base_branch." >&2
