@@ -65,9 +65,12 @@ jobs:
           set -euo pipefail
           title="ci: update submodules"
           body=$'## Summary\n- update git submodules to their latest upstream commits\n\nThis pull request was generated automatically.'
-          base_branch="${{ github.ref_name }}"
+          if ! base_branch="$(gh repo view "$GITHUB_REPOSITORY" --json defaultBranchRef --jq '.defaultBranchRef.name')"; then
+            echo "Failed to resolve repository default branch." >&2
+            exit 1
+          fi
 
-          if ! pr_number="$(gh pr list --head ci/update-submodules --base "$base_branch" --state open --limit 1 --json number --jq '.[0].number // empty')"; then
+          if ! pr_number="$(gh pr list --head ci/update-submodules --base "$base_branch" --state open --json number --jq 'if length == 0 then "" elif length == 1 then .[0].number else error("multiple open PRs found for ci/update-submodules") end')"; then
             echo "Failed to query existing pull requests." >&2
             exit 1
           fi
