@@ -50,7 +50,8 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git checkout -B ci/update-submodules
-          git add .gitmodules nodes/
+          git add .gitmodules
+          git submodule foreach --recursive 'git -C "$toplevel" add "$sm_path"'
           git commit -m "ci: update submodules"
           git push --force origin ci/update-submodules
 
@@ -63,7 +64,13 @@ jobs:
         run: |
           set -euo pipefail
           title="ci: update submodules"
-          body=$'## Summary\n- update git submodules to their latest upstream commits\n\nThis pull request was generated automatically.'
+          body="$(cat <<'EOF'
+          ## Summary
+          - update git submodules to their latest upstream commits
+
+          This pull request was generated automatically.
+          EOF
+          )"
           if ! base_branch="$(gh repo view "$GITHUB_REPOSITORY" --json defaultBranchRef --jq '.defaultBranchRef.name')"; then
             echo "Failed to resolve repository default branch." >&2
             exit 1
