@@ -68,8 +68,7 @@ nodes:
     build: pip install -e nodes/dora-openarm
     # build: pip install dora-openarm
     path: dora-openarm
-    # Please configure!
-    args: "--side right --align-trigger gripper --config /path/to/config.yaml"
+    args: "--side right --align-trigger gripper"
     inputs:
       # Event ID is only used. Event value isn't used.
       request_position: leader/right_follower_position
@@ -97,8 +96,7 @@ nodes:
     build: pip install -e nodes/dora-openarm
     # build: pip install dora-openarm
     path: dora-openarm
-    # Please configure!
-    args: "--side left --align-trigger gripper --config /path/to/config.yaml"
+    args: "--side left --align-trigger gripper"
     inputs:
       # Event ID is only used. Event value isn't used.
       request_position: leader/left_follower_position
