@@ -50,7 +50,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           git checkout -B ci/update-submodules
-          git add .
+          git add --update
           git commit -m "ci: update submodules"
           git push --force origin ci/update-submodules
 
