@@ -16,3 +16,15 @@
 [submodule "nodes/dora-openarm-dataset-recorder"]
 	path = nodes/dora-openarm-dataset-recorder
 	url = https://github.com/enactic/dora-openarm-dataset-recorder.git
+[submodule "nodes/dora-openarm"]
+	path = nodes/dora-openarm
+	url = https://github.com/enactic/dora-openarm.git
+[submodule "nodes/dora-openarm-ker"]
+	path = nodes/dora-openarm-ker
+	url = https://github.com/enactic/dora-openarm-ker.git
+[submodule "nodes/dora-openarm-cell-lifter"]
+	path = nodes/dora-openarm-cell-lifter
+	url = https://github.com/enactic/dora-openarm-cell-lifter.git
+[submodule "nodes/dora-opencv-image-splitter"]
+	path = nodes/dora-opencv-image-splitter
+	url = https://github.com/enactic/dora-opencv-image-splitter.git
