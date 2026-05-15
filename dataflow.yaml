@@ -130,20 +130,37 @@ nodes:
     outputs:
       - image
 
-  - id: camera-head
+  - id: camera-head-stereo
     build: pip install opencv-video-capture
     path: opencv-video-capture
-    inputs:
-      tick: quittable-tick-camera/tick
     env:
       # Please configure!
-      CAPTURE_PATH: "/dev/camera_head"
-      ENCODING: "jpeg"
-      IMAGE_HEIGHT: 600
-      IMAGE_WIDTH: 960
-      JPEG_QUALITY: 90
+      # Stereo camera: left and right images placed side by side in one frame.
+      CAPTURE_PATH: "/dev/camera_head_stereo"
+      ENCODING: "bgr8"
+      IMAGE_HEIGHT: 720
+      IMAGE_WIDTH: 2560
+    inputs:
+      tick: quittable-tick-camera/tick
     outputs:
       - image
+
+  - id: camera-head-stereo-splitter
+    build: pip install -e nodes/dora-opencv-image-splitter
+    # build: pip install dora-opencv-image-splitter
+    path: dora-opencv-image-splitter
+    env:
+      SPLIT_MODE: "vertical"
+      NUM_SPLITS: 2
+      JPEG_QUALITY: 90
+      IMAGE_HEIGHT: 720
+      IMAGE_WIDTH: 2560
+    inputs:
+      tick: quittable-tick-camera/tick
+      image: camera-head-stereo/image
+    outputs:
+      - image_0
+      - image_1
 
   - id: camera-ceiling
     build: pip install opencv-video-capture
@@ -177,7 +194,8 @@ nodes:
       arm_left_action: leader/left_follower_position
       arm_left_observation: follower-left/state
       camera_wrist_left: camera-wrist-left/image
-      camera_head: camera-head/image
+      camera_head_left: camera-head-stereo-splitter/image_0
+      camera_head_right: camera-head-stereo-splitter/image_1
       camera_ceiling: camera-ceiling/image
       elevation_action: lifter/elevation_action
       elevation_observation: lifter/elevation_observation
