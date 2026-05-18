@@ -1,0 +1,165 @@
+nodes:
+  - id: ui
+    build: pip install -e nodes/dora-openarm-data-collection-ui
+    path: dora-openarm-data-collection-ui
+    env:
+      METADATA_FILE: "metadata.yaml"
+    inputs:
+      tick: dora/timer/secs/1
+      button_a:
+        source: vr-receiver/button_a
+        queue_size: 100
+      button_b:
+        source: vr-receiver/button_b
+        queue_size: 100
+    outputs:
+      - command
+
+  - id: quittable-tick-leader
+    build: pip install -e nodes/dora-openarm-quitter
+    path: dora-openarm-quitter
+    inputs:
+      command: ui/command
+      tick: dora/timer/millis/2
+    outputs:
+      - tick
+
+  - id: vr-receiver
+    build: pip install -e nodes/dora-openarm-vr
+    path: dora-quest-receiver
+    args: "--host 0.0.0.0 --port 5006"
+    inputs:
+      tick: quittable-tick-leader/tick
+    outputs:
+      - pose_right
+      - trigger_right
+      - pose_left
+      - trigger_left
+      - joystick_y
+      - button_a
+      - button_b
+      - status
+
+  - id: ik
+    build: pip install -e nodes/dora-openarm-kinematics
+    path: dora-openarm-ik
+    args: "--mode bimanual --max-iters 10 --dt 0.1 --damping 0.1 --posture-cost 0.01 --lm-damping 0.01"
+    inputs:
+      tick: quittable-tick-leader/tick
+      target_right: vr-receiver/pose_right
+      target_left: vr-receiver/pose_left
+      trigger_right: vr-receiver/trigger_right
+      trigger_left: vr-receiver/trigger_left
+    outputs:
+      - position_left
+      - position_right
+      - status
+
+  - id: camera-wrist-right
+    build: pip install opencv-video-capture
+    path: opencv-video-capture
+    env:
+      # Please configure!
+      CAPTURE_PATH: "/dev/camera_wrist_right"
+      ENCODING: "jpeg"
+      IMAGE_HEIGHT: 600
+      IMAGE_WIDTH: 960
+      JPEG_QUALITY: 90
+    inputs:
+      tick: quittable-tick-camera/tick
+    outputs:
+      - image
+
+  - id: follower-left
+    build: pip install -e nodes/dora-openarm
+    # build: pip install dora-openarm
+    path: dora-openarm
+    args: "--side left --align-trigger gripper"
+    inputs:
+      # Event ID is only used. Event value isn't used.
+      request_state: leader/left_follower_position
+      move_position: leader/left_follower_position
+    outputs:
+      - state
+      - status
+
+  - id: camera-wrist-left
+    build: pip install opencv-video-capture
+    path: opencv-video-capture
+    env:
+      # Please configure!
+      CAPTURE_PATH: "/dev/camera_wrist_left"
+      ENCODING: "jpeg"
+      IMAGE_HEIGHT: 600
+      IMAGE_WIDTH: 960
+      JPEG_QUALITY: 90
+    inputs:
+      tick: quittable-tick-camera/tick
+    outputs:
+      - image
+
+  - id: camera-head-stereo
+    build: pip install opencv-video-capture
+    path: opencv-video-capture
+    env:
+      # Please configure!
+      # Stereo camera: left and right images placed side by side in one frame.
+      CAPTURE_PATH: "/dev/camera_head_stereo"
+      ENCODING: "bgr8"
+      IMAGE_HEIGHT: 720
+      IMAGE_WIDTH: 2560
+    inputs:
+      tick: quittable-tick-camera/tick
+    outputs:
+      - image
+
+  - id: camera-head-stereo-splitter
+    build: pip install -e nodes/dora-opencv-image-splitter
+    # build: pip install dora-opencv-image-splitter
+    path: dora-opencv-image-splitter
+    env:
+      SPLIT_MODE: "vertical"
+      NUM_SPLITS: 2
+      JPEG_QUALITY: 90
+      IMAGE_HEIGHT: 720
+      IMAGE_WIDTH: 2560
+    inputs:
+      tick: quittable-tick-camera/tick
+      image: camera-head-stereo/image
+    outputs:
+      - image_0
+      - image_1
+
+  - id: camera-ceiling
+    build: pip install opencv-video-capture
+    path: opencv-video-capture
+    env:
+      # Please configure!
+      CAPTURE_PATH: "/dev/camera_ceiling"
+      ENCODING: "jpeg"
+      IMAGE_HEIGHT: 600
+      IMAGE_WIDTH: 960
+      JPEG_QUALITY: 90
+    inputs:
+      tick: quittable-tick-camera/tick
+    outputs:
+      - image
+
+  - id: recorder
+    build: pip install -e nodes/dora-openarm-dataset-recorder
+    path: dora-openarm-dataset-recorder
+    env:
+      METADATA_FILE: "metadata.yaml"
+      DIRECTORY: "test_data/mujoco_collection"
+    inputs:
+      command: ui/command
+      arm_right_action: ik/position_right
+      arm_right_observation: follower-right/state
+      arm_left_action: ik/position_left
+      arm_left_observation: follower-left/state
+      camera_wrist_left: camera-wrist-left/image
+      camera_head_left: camera-head-stereo-splitter/image_0
+      camera_head_right: camera-head-stereo-splitter/image_1
+      camera_ceiling: camera-ceiling/image
+      #elevation_action: lifter/elevation_action
+      #elevation_observation: lifter/elevation_observation
