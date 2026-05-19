@@ -7,10 +7,10 @@ nodes:
     inputs:
       tick: dora/timer/secs/1
       button_a:
-        source: vr-receiver/button_a
+        source: udp-receiver/button_a
         queue_size: 100
       button_b:
-        source: vr-receiver/button_b
+        source: udp-receiver/button_b
         queue_size: 100
     outputs:
       - command
