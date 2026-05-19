@@ -15,6 +15,18 @@ nodes:
     outputs:
       - command
 
+  - id: quittable-tick-camera
+    build: pip install -e nodes/dora-openarm-quitter
+    # build: pip install dora-openarm-quitter
+    path: dora-openarm-quitter
+    inputs:
+      command: ui/command
+      # tick: dora/timer/millis/200 # 5Hz
+      tick: dora/timer/millis/33 # 30fps
+    outputs:
+      - tick
+
+ 
   - id: quittable-tick-leader
     build: pip install -e nodes/dora-openarm-quitter
     path: dora-openarm-quitter
@@ -70,15 +82,41 @@ nodes:
     outputs:
       - image
 
-  - id: follower-left
-    build: pip install -e nodes/dora-openarm
-    # build: pip install dora-openarm
+  # ── MuJoCo viewer  ──
+  - id: mujoco-viewer
+    build: pip install git+https://github.com/enactic/dora-openarm-mujoco
+    path: dora-openarm-mujoco
+    args: "--keyframe home --viewer --debug-frames"
+    inputs:
+      position_left:  ik/position_left
+      position_right: ik/position_right
+      pose_right:     udp-receiver/pose_right
+      pose_left:      udp-receiver/pose_left
+      joystick_y:     udp-receiver/joystick_y
+    outputs:
+      - status
+
+  - id: follower-right
+    build: pip install git+https://github.com/enactic/dora-openarm
     path: dora-openarm
-    args: "--side left --align-trigger gripper"
+    # args: "--side right --align-trigger gripper --config ../../openarm_driver/config/openarm_cell_higher_pd.yaml"
+    args: "--side right --align-trigger gripper"
     inputs:
       # Event ID is only used. Event value isn't used.
-      request_state: leader/left_follower_position
-      move_position: leader/left_follower_position
+      request_state: ik/position_right
+      move_position: ik/position_right
+    outputs:
+      - state
+      - status
+
+  - id: follower-left
+    build: pip install git+https://github.com/enactic/dora-openarm
+    path: dora-openarm
+    # args: "--side left --align-trigger gripper --config ../../openarm_driver/config/openarm_cell_higher_pd.yaml"
+    args: "--side left --align-trigger gripper"
+    inputs:
+      request_state: ik/position_left
+      move_position: ik/position_left
     outputs:
       - state
       - status
