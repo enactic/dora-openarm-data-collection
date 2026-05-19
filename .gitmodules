@@ -34,3 +34,6 @@
 [submodule "nodes/dora-openarm-mujoco"]
 	path = nodes/dora-openarm-mujoco
 	url = https://github.com/enactic/dora-openarm-mujoco
+[submodule "nodes/dora-openarm-vr"]
+	path = nodes/dora-openarm-vr
+	url = https://github.com/enactic/dora-openarm-vr.git
