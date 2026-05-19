@@ -84,7 +84,7 @@ nodes:
 
   # ── MuJoCo viewer  ──
   - id: mujoco-viewer
-    build: pip install git+https://github.com/enactic/dora-openarm-mujoco
+    build: pip install -e nodes/dora-openarm-mujoco
     path: dora-openarm-mujoco
     args: "--keyframe home --viewer --debug-frames"
     inputs:
@@ -97,7 +97,7 @@ nodes:
       - status
 
   - id: follower-right
-    build: pip install git+https://github.com/enactic/dora-openarm
+    build: pip install -e nodes/dora-openarm
     path: dora-openarm
     # args: "--side right --align-trigger gripper --config ../../openarm_driver/config/openarm_cell_higher_pd.yaml"
     args: "--side right --align-trigger gripper"
@@ -110,7 +110,7 @@ nodes:
       - status
 
   - id: follower-left
-    build: pip install git+https://github.com/enactic/dora-openarm
+    build: pip install -e nodes/dora-openarm
     path: dora-openarm
     # args: "--side left --align-trigger gripper --config ../../openarm_driver/config/openarm_cell_higher_pd.yaml"
     args: "--side left --align-trigger gripper"
@@ -122,7 +122,7 @@ nodes:
       - status
 
   - id: lifter
-    build: pip install git+https://github.com/enactic/dora-openarm-cell-lifter
+    build: pip install -e nodes/dora-openarm-cell-lifter
     path: dora-openarm-cell-lifter
     inputs:
       joystick_y: udp-receiver/joystick_y
