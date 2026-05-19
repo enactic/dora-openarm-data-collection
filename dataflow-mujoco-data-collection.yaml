@@ -59,7 +59,7 @@ nodes:
   - id: mujoco-collect
     build: pip install -e nodes/dora-openarm-mujoco
     path: dora-openarm-mujoco
-    args: "--keyframe home --enable-collision --ctrl --viewer --render"
+    args: "--scene demo --keyframe home --enable-collision --ctrl --viewer --render"
     env:
       DISPLAY: ":1" # needed when running headless with Xvfb
     inputs:
