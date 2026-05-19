@@ -197,7 +197,7 @@ nodes:
     path: dora-openarm-dataset-recorder
     env:
       METADATA_FILE: "metadata.yaml"
-      DIRECTORY: "test_data/mujoco_collection"
+      DIRECTORY: "vr_data"
     inputs:
       command: ui/command
       arm_right_action: ik/position_right
