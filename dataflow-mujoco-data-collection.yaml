@@ -3,7 +3,7 @@ nodes:
     build: pip install -e nodes/dora-openarm-data-collection-ui
     path: dora-openarm-data-collection-ui
     env:
-      METADATA_FILE: "metadata.yaml"
+      METADATA_FILE: "metadata_mujoco.yaml"
     inputs:
       tick: dora/timer/secs/1
       button_a:
@@ -82,7 +82,7 @@ nodes:
     build: pip install -e nodes/dora-openarm-dataset-recorder
     path: dora-openarm-dataset-recorder
     env:
-      METADATA_FILE: "metadata.yaml"
+      METADATA_FILE: "metadata_mujoco.yaml"
       DIRECTORY: "test_data/mujoco_collection"
     inputs:
       command: ui/command
