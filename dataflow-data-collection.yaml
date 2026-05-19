@@ -83,6 +83,15 @@ nodes:
       - state
       - status
 
+  - id: lifter
+    build: pip install git+https://github.com/enactic/dora-openarm-cell-lifter
+    path: dora-openarm-cell-lifter
+    inputs:
+      joystick_y: udp-receiver/joystick_y
+    outputs:
+      - elevation_observation
+      - elevation_action
+
   - id: camera-wrist-left
     build: pip install opencv-video-capture
     path: opencv-video-capture
@@ -157,9 +166,10 @@ nodes:
       arm_right_observation: follower-right/state
       arm_left_action: ik/position_left
       arm_left_observation: follower-left/state
+      camera_wrist_right: camera-wrist-right/image
       camera_wrist_left: camera-wrist-left/image
       camera_head_left: camera-head-stereo-splitter/image_0
       camera_head_right: camera-head-stereo-splitter/image_1
       camera_ceiling: camera-ceiling/image
-      #elevation_action: lifter/elevation_action
-      #elevation_observation: lifter/elevation_observation
+      elevation_action: lifter/elevation_action
+      elevation_observation: lifter/elevation_observation
