@@ -24,9 +24,9 @@ nodes:
     outputs:
       - tick
 
-  - id: vr-receiver
+  - id: udp-receiver
     build: pip install -e nodes/dora-openarm-vr
-    path: dora-quest-receiver
+    path: dora-openarm-quest-receiver
     args: "--host 0.0.0.0 --port 5006"
     inputs:
       tick: quittable-tick-leader/tick
@@ -46,10 +46,10 @@ nodes:
     args: "--mode bimanual --max-iters 10 --dt 0.1 --damping 0.1 --posture-cost 0.01 --lm-damping 0.01"
     inputs:
       tick: quittable-tick-leader/tick
-      target_right: vr-receiver/pose_right
-      target_left: vr-receiver/pose_left
-      trigger_right: vr-receiver/trigger_right
-      trigger_left: vr-receiver/trigger_left
+      target_right: udp-receiver/pose_right
+      target_left: udp-receiver/pose_left
+      trigger_right: udp-receiver/trigger_right
+      trigger_left: udp-receiver/trigger_left
     outputs:
       - position_left
       - position_right
@@ -65,16 +65,17 @@ nodes:
     inputs:
       position_left: ik/position_left
       position_right: ik/position_right
-      pose_right: vr-receiver/pose_right
-      pose_left: vr-receiver/pose_left
-      joystick_y: vr-receiver/joystick_y
+      pose_right: udp-receiver/pose_right
+      pose_left: udp-receiver/pose_left
+      joystick_y: udp-receiver/joystick_y
     outputs:
       - status
       - arm_right_observation # MuJoCo qpos (replaces follower-right/state)
       - arm_left_observation # MuJoCo qpos (replaces follower-left/state)
       - camera_wrist_right # replaces camera-wrist-right/image
       - camera_wrist_left # replaces camera-wrist-left/image
-      - camera_head # replaces camera-head-stereo-splitter (960x600, no split)
+      - camera_head_left
+      - camera_head_right
       - camera_ceiling # replaces camera-ceiling/image
 
   - id: recorder
@@ -91,7 +92,7 @@ nodes:
       arm_left_observation: mujoco-collect/arm_left_observation
       camera_wrist_right: mujoco-collect/camera_wrist_right
       camera_wrist_left: mujoco-collect/camera_wrist_left
-      camera_head_left: mujoco-collect/camera_head # head is single camera (no stereo split)
+      camera_head_left: mujoco-collect/camera_head_left
+      camera_head_right: mujoco-collect/camera_head_right
       camera_ceiling: mujoco-collect/camera_ceiling
       # elevation_action/observation: not use here
-
