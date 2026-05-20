@@ -31,7 +31,6 @@ nodes:
 
   - id: quittable-tick-camera
     build: pip install -e nodes/dora-openarm-quitter
-    # build: pip install dora-openarm-quitter
     path: dora-openarm-quitter
     inputs:
       command: ui/command
@@ -112,7 +111,6 @@ nodes:
   - id: follower-right
     build: pip install -e nodes/dora-openarm
     path: dora-openarm
-    # args: "--side right --align-trigger gripper --config ../../openarm_driver/config/openarm_cell_higher_pd.yaml"
     args: "--side right --align-trigger gripper"
     inputs:
       # Event ID is only used. Event value isn't used.
@@ -125,7 +123,6 @@ nodes:
   - id: follower-left
     build: pip install -e nodes/dora-openarm
     path: dora-openarm
-    # args: "--side left --align-trigger gripper --config ../../openarm_driver/config/openarm_cell_higher_pd.yaml"
     args: "--side left --align-trigger gripper"
     inputs:
       request_state: ik/position_left
@@ -175,7 +172,6 @@ nodes:
 
   - id: camera-head-stereo-splitter
     build: pip install -e nodes/dora-opencv-image-splitter
-    # build: pip install dora-opencv-image-splitter
     path: dora-opencv-image-splitter
     env:
       SPLIT_MODE: "vertical"

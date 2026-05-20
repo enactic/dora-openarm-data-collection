@@ -84,13 +84,13 @@ nodes:
       joystick_y: udp-receiver/joystick_y
     outputs:
       - status
-      - arm_right_observation # MuJoCo qpos (replaces follower-right/state)
-      - arm_left_observation # MuJoCo qpos (replaces follower-left/state)
-      - camera_wrist_right # replaces camera-wrist-right/image
-      - camera_wrist_left # replaces camera-wrist-left/image
+      - arm_right_observation 
+      - arm_left_observation 
+      - camera_wrist_right 
+      - camera_wrist_left 
       - camera_head_left
       - camera_head_right
-      - camera_ceiling # replaces camera-ceiling/image
+      - camera_ceiling 
 
   - id: recorder
     build: pip install -e nodes/dora-openarm-dataset-recorder
@@ -109,4 +109,3 @@ nodes:
       camera_head_left: mujoco-collect/camera_head_left
       camera_head_right: mujoco-collect/camera_head_right
       camera_ceiling: mujoco-collect/camera_ceiling
-      # elevation_action/observation: not use here
