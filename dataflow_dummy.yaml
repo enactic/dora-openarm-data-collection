@@ -54,10 +54,10 @@ nodes:
     inputs:
       tick: quittable-tick-leader/tick
     outputs:
-      - right_position
-      - left_position
-      - right_follower_position
-      - left_follower_position
+      - position_right
+      - position_left
+      - follower_position_right
+      - follower_position_left
       - joystick_x
       - joystick_y
       - joystick_button
@@ -68,8 +68,8 @@ nodes:
     path: dora-openarm-dummy
     inputs:
       # Event ID is only used. Event value isn't used.
-      request_position: leader/right_follower_position
-      move_position: leader/right_follower_position
+      request_position: leader/follower_position_right
+      move_position: leader/follower_position_right
     outputs:
       - position
       - status
@@ -94,8 +94,8 @@ nodes:
     path: dora-openarm-dummy
     inputs:
       # Event ID is only used. Event value isn't used.
-      request_position: leader/left_follower_position
-      move_position: leader/left_follower_position
+      request_position: leader/follower_position_left
+      move_position: leader/follower_position_left
     outputs:
       - position
       - status
@@ -150,10 +150,10 @@ nodes:
       METADATA_FILE: "metadata.yaml"
     inputs:
       command: ui/command
-      arm_right_action: leader/right_follower_position
+      arm_right_action: leader/follower_position_right
       arm_right_observation: follower-right/position
       camera_wrist_right: camera-wrist-right/image
-      arm_left_action: leader/left_follower_position
+      arm_left_action: leader/follower_position_left
       arm_left_observation: follower-left/position
       camera_wrist_left: camera-wrist-left/image
       camera_head: camera-head/image
