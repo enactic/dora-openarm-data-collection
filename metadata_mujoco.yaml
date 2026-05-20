@@ -26,14 +26,6 @@ equipment:
     arms:
       id: OpenArm
       version: "2.0"
-    lifter:
-      id: OpenArmCellLifter
-      version: "1.0"
-      mechanism: lead_screw
-      lead_length: 5.0
-      stroke: 300
-      home: bottom
-      unit: mm
   perceptions:
     cameras:
       wrist_left: {}
