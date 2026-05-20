@@ -56,10 +56,10 @@ nodes:
     inputs:
       tick: quittable-tick-leader/tick
     outputs:
-      - left_position
-      - right_position
-      - left_follower_position
-      - right_follower_position
+      - position_left
+      - position_right
+      - follower_position_left
+      - follower_position_right
       - joystick_x
       - joystick_y
       - joystick_button
@@ -81,8 +81,8 @@ nodes:
     args: "--side right --align-trigger gripper"
     inputs:
       # Event ID is only used. Event value isn't used.
-      request_state: leader/right_follower_position
-      move_position: leader/right_follower_position
+      request_state: leader/follower_position_right
+      move_position: leader/follower_position_right
     outputs:
       - state
       - status
@@ -109,8 +109,8 @@ nodes:
     args: "--side left --align-trigger gripper"
     inputs:
       # Event ID is only used. Event value isn't used.
-      request_state: leader/left_follower_position
-      move_position: leader/left_follower_position
+      request_state: leader/follower_position_left
+      move_position: leader/follower_position_left
     outputs:
       - state
       - status
@@ -156,7 +156,6 @@ nodes:
       IMAGE_HEIGHT: 720
       IMAGE_WIDTH: 2560
     inputs:
-      tick: quittable-tick-camera/tick
       image: camera-head-stereo/image
     outputs:
       - image_0
@@ -188,10 +187,10 @@ nodes:
       # DIRECTORY: "/path/to/datasets"
     inputs:
       command: ui/command
-      arm_right_action: leader/right_follower_position
+      arm_right_action: leader/follower_position_right
       arm_right_observation: follower-right/state
       camera_wrist_right: camera-wrist-right/image
-      arm_left_action: leader/left_follower_position
+      arm_left_action: leader/follower_position_left
       arm_left_observation: follower-left/state
       camera_wrist_left: camera-wrist-left/image
       camera_head_left: camera-head-stereo-splitter/image_0
