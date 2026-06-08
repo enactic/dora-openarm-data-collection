@@ -69,19 +69,6 @@ nodes:
     outputs:
       - follower_position_left
       - follower_position_right
-      - joystick_x
-      - joystick_y
-      - joystick_button
-
-  - id: lifter
-    build: pip install -e nodes/dora-openarm-cell-lifter
-    # build: pip install dora-openarm-cell-lifter
-    path: dora-openarm-cell-lifter
-    inputs:
-      joystick_y: leader/joystick_y
-    outputs:
-      - elevation_action
-      - elevation_observation
 
   - id: follower-right
     build: pip install -e nodes/dora-openarm
@@ -205,5 +192,3 @@ nodes:
       camera_head_left: camera-head-stereo-splitter/image_0
       camera_head_right: camera-head-stereo-splitter/image_1
       camera_ceiling: camera-ceiling/image
-      elevation_action: lifter/elevation_action
-      elevation_observation: lifter/elevation_observation
