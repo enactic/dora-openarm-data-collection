@@ -37,8 +37,13 @@ nodes:
       camera_ceiling:
         source: camera-ceiling/image
         queue_size: 1
+      arm_status_right:
+        source: follower-right/status
+      arm_status_left:
+        source: follower-left/status
     outputs:
       - command
+      - arm_command
 
   - id: quittable-tick-leader
     build: pip install -e nodes/dora-openarm-quitter
@@ -79,6 +84,7 @@ nodes:
       # Event ID is only used. Event value isn't used.
       request_state: leader/follower_position_right
       move_position: leader/follower_position_right
+      command: ui/arm_command
     outputs:
       - state
       - status
@@ -107,6 +113,7 @@ nodes:
       # Event ID is only used. Event value isn't used.
       request_state: leader/follower_position_left
       move_position: leader/follower_position_left
+      command: ui/arm_command
     outputs:
       - state
       - status
