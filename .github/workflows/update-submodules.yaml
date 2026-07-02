@@ -1,0 +1,101 @@
+# Copyright 2026 Enactic, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Update Submodules
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-submodules:
+    name: Update submodules
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Update submodules
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive --remote
+
+      - name: Commit updated submodules
+        id: commit
+        run: |
+          if git diff --quiet --exit-code HEAD; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git checkout -B ci/update-submodules
+          git add .gitmodules
+          git submodule foreach --recursive 'git -C "$toplevel" add "$sm_path"'
+          git commit -m "ci: update submodules"
+          git push --force origin ci/update-submodules
+
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update pull request
+        if: steps.commit.outputs.has_changes == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="ci: update submodules"
+          body="$(cat <<'EOF'
+          ## Summary
+          - update git submodules to their latest upstream commits
+
+          This pull request was generated automatically.
+          EOF
+          )"
+          if ! base_branch="$(gh repo view "$GITHUB_REPOSITORY" --json defaultBranchRef --jq '.defaultBranchRef.name')"; then
+            echo "Failed to resolve repository default branch." >&2
+            exit 1
+          fi
+
+          pr_list=""
+          if ! pr_list="$(gh pr list --head ci/update-submodules --base "$base_branch" --state open --json number --jq '.[].number')"; then
+            echo "Failed to query existing pull requests." >&2
+            exit 1
+          fi
+
+          pr_numbers=()
+          mapfile -t pr_numbers <<< "$pr_list"
+
+          if [ "${#pr_numbers[@]}" -gt 1 ]; then
+            echo "Multiple open pull requests found for ci/update-submodules against $base_branch." >&2
+            exit 1
+          fi
+
+          pr_number=""
+          if [ "${#pr_numbers[@]}" -eq 1 ]; then
+            pr_number="${pr_numbers[0]}"
+          fi
+
+          if [ -n "$pr_number" ]; then
+            gh pr edit "$pr_number" --title "$title" --body "$body"
+          else
+            gh pr create --head ci/update-submodules --base "$base_branch" --title "$title" --body "$body"
+          fi
