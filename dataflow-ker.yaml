@@ -74,6 +74,7 @@ nodes:
     outputs:
       - follower_position_left
       - follower_position_right
+      - metadata
 
   - id: follower-right
     build: pip install -e nodes/dora-openarm
@@ -199,3 +200,4 @@ nodes:
       camera_head_left: camera-head-stereo-splitter/image_0
       camera_head_right: camera-head-stereo-splitter/image_1
       camera_ceiling: camera-ceiling/image
+      ker_metadata: leader/metadata
