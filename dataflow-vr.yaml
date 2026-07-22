@@ -26,6 +26,9 @@ nodes:
       button_b:
         source: udp-receiver/button_b
         queue_size: 100
+      vr_receive_times:
+        source: udp-receiver/vr_receive_times
+        queue_size: 100
       camera_wrist_right:
         source: camera-wrist-right/image
         queue_size: 1
@@ -48,7 +51,6 @@ nodes:
     outputs:
       - command
       - arm_command
-
 
   - id: quittable-tick-camera
     build: pip install -e nodes/dora-openarm-quitter
@@ -83,7 +85,9 @@ nodes:
       - joystick_y
       - button_a
       - button_b
+      - button_x
       - status
+      - vr_receive_times
 
   - id: ik
     build: pip install -e nodes/dora-openarm-kinematics
