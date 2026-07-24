@@ -82,7 +82,7 @@ nodes:
       - trigger_right
       - pose_left
       - trigger_left
-      - joystick_y
+      - joystick_y_left
       - button_a
       - button_b
       - button_x
@@ -129,7 +129,7 @@ nodes:
       position_right: ik/position_right
       pose_right: udp-receiver/pose_right
       pose_left: udp-receiver/pose_left
-      joystick_y: udp-receiver/joystick_y
+      joystick_y: udp-receiver/joystick_y_left
     outputs:
       - status
 
@@ -162,7 +162,7 @@ nodes:
     build: pip install -e nodes/dora-openarm-cell-lifter
     path: dora-openarm-cell-lifter
     inputs:
-      joystick_y: udp-receiver/joystick_y
+      joystick_y: udp-receiver/joystick_y_left
     outputs:
       - elevation_observation
       - elevation_action
