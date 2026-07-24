@@ -187,8 +187,7 @@ nodes:
     env:
       METADATA_FILE: "metadata.yaml"
       # Output directory for recorded datasets.
-      # Default: directory containing dataflow.yaml
-      # DIRECTORY: "/path/to/datasets"
+      DIRECTORY: "ker_data"
     inputs:
       command: ui/command
       arm_right_action: leader/follower_position_right
