@@ -80,7 +80,7 @@ nodes:
     path: dora-openarm-mujoco
     args: "--scene demo --keyframe home --enable-collision --ctrl --viewer --render"
     env:
-      DISPLAY: ":1" # needed when running headless with Xvfb
+      # DISPLAY: ":1" # needed when running headless with Xvfb
     inputs:
       position_left: ik/position_left
       position_right: ik/position_right
