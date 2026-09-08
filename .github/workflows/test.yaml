@@ -34,19 +34,32 @@ jobs:
       - name: Install dora-rs-cli
         run: |
           pip install dora-rs-cli
+      - name: Up
+        run: |
+          dora up
       - name: Build
         run: |
           dora build dataflow_dummy.yaml
       - name: Run
         run: |
-          dora run dataflow_dummy.yaml &
-          sleep 5
+          # dora start doesn't run build commands unlike dora run.
+          dora start dataflow_dummy.yaml --attach &
+          # Wait for the UI node's HTTP server
+          for i in $(seq 1 30); do
+            if curl --silent --output /dev/null http://127.0.0.1:8000/; then
+              break
+            fi
+            sleep 1
+          done
           curl -X POST http://127.0.0.1:8000/start
           sleep 1
           curl -X POST http://127.0.0.1:8000/success
           sleep 3
           curl -X POST http://127.0.0.1:8000/quit
           wait
+      - name: Down
+        run: |
+          dora down --force
       - uses: actions/upload-artifact@v7
         with:
           name: dataset
