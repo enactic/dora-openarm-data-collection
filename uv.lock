@@ -280,6 +280,7 @@ dependencies = [
     { name = "dora-openarm-kinematics" },
     { name = "dora-openarm-mujoco" },
     { name = "dora-openarm-quitter" },
+    { name = "dora-openarm-selector" },
     { name = "dora-openarm-vr" },
     { name = "dora-openarm-webxr" },
     { name = "dora-opencv-image-splitter" },
@@ -301,6 +302,7 @@ requires-dist = [
     { name = "dora-openarm-kinematics", editable = "nodes/dora-openarm-kinematics" },
     { name = "dora-openarm-mujoco", editable = "nodes/dora-openarm-mujoco" },
     { name = "dora-openarm-quitter", editable = "nodes/dora-openarm-quitter" },
+    { name = "dora-openarm-selector", editable = "nodes/dora-openarm-selector" },
     { name = "dora-openarm-vr", editable = "nodes/dora-openarm-vr" },
     { name = "dora-openarm-webxr", editable = "nodes/dora-openarm-webxr" },
     { name = "dora-opencv-image-splitter", editable = "nodes/dora-opencv-image-splitter" },
@@ -506,6 +508,24 @@ dev = [
     { name = "pytest", specifier = ">=8.1.1" },
     { name = "ruff", specifier = "==0.14.11" },
 ]
+
+[[package]]
+name = "dora-openarm-selector"
+version = "0.1.0"
+source = { editable = "nodes/dora-openarm-selector" }
+dependencies = [
+    { name = "dora-rs" },
+    { name = "pyarrow" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "dora-rs", specifier = ">=0.5.0" },
+    { name = "pyarrow" },
+]
+
+[package.metadata.requires-dev]
+dev = [{ name = "pytest", specifier = ">=8.1.1" }]
 
 [[package]]
 name = "dora-openarm-vr"

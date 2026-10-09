@@ -55,3 +55,6 @@
 [submodule "lib/openarm_mujoco"]
 	path = lib/openarm_mujoco
 	url = https://github.com/enactic/openarm_mujoco.git
+[submodule "nodes/dora-openarm-selector"]
+	path = nodes/dora-openarm-selector
+	url = https://github.com/shokubutsuu/dora-openarm-selector.git
