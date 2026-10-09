@@ -284,6 +284,7 @@ dependencies = [
     { name = "dora-openarm-vr" },
     { name = "dora-openarm-webxr" },
     { name = "dora-opencv-image-splitter" },
+    { name = "dora-rs" },
     { name = "dora-rs-cli" },
     { name = "openarm-driver" },
     { name = "opencv-video-capture" },
@@ -306,7 +307,8 @@ requires-dist = [
     { name = "dora-openarm-vr", editable = "nodes/dora-openarm-vr" },
     { name = "dora-openarm-webxr", editable = "nodes/dora-openarm-webxr" },
     { name = "dora-opencv-image-splitter", editable = "nodes/dora-opencv-image-splitter" },
-    { name = "dora-rs-cli", specifier = "==1.0.1" },
+    { name = "dora-rs", specifier = ">=1.0.0" },
+    { name = "dora-rs-cli", specifier = ">=1.0.0" },
     { name = "openarm-driver", specifier = ">=0.5.1" },
     { name = "opencv-video-capture" },
 ]
@@ -511,7 +513,7 @@ dev = [
 
 [[package]]
 name = "dora-openarm-selector"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "nodes/dora-openarm-selector" }
 dependencies = [
     { name = "dora-rs" },
@@ -520,12 +522,15 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "dora-rs", specifier = ">=0.5.0" },
+    { name = "dora-rs", specifier = ">=1.0.0" },
     { name = "pyarrow" },
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "pytest", specifier = ">=8.1.1" }]
+dev = [
+    { name = "dora-rs-cli", specifier = ">=1.0.0" },
+    { name = "pytest", specifier = ">=8.1.1" },
+]
 
 [[package]]
 name = "dora-openarm-vr"
