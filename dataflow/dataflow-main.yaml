@@ -25,12 +25,15 @@
 # port (KER, Quest/WebXR receivers, CAN followers, lifter, cameras, MuJoCo)
 # run through dora-openarm-standby: when they aren't selected they stand by
 # without opening anything, so e.g. LEADER=dummy ROBOT=dummy needs no device.
+# The real followers run only with a real leader (ker, vr or webxr) and
+# ROBOT=cell, so LEADER=dummy ROBOT=cell never moves the real arms.
 #
 # Selectors:
 #   action-selector       LEADER picks the joint targets (and VR buttons/joystick).
 #   robot-router          ROBOT routes those targets to one robot only, so the
 #                         real arms don't move while ROBOT=mujoco.
-#   observation-selector  ROBOT picks the state and cameras that are recorded.
+#   state-selector        ROBOT picks the arm state and lifter that are recorded.
+#   camera-selector       ROBOT picks the cameras that are shown and recorded.
 #
 # Not merged: dataflow-pedestal.yaml. Its followers use another --config on
 # the same CAN buses, and args can't come from environment variables.
@@ -60,19 +63,19 @@ nodes:
         queue_size: 100
       # Cameras of the selected robot.
       camera_wrist_right:
-        source: observation-selector/wrist_right
+        source: camera-selector/wrist_right
         queue_size: 1
       camera_wrist_left:
-        source: observation-selector/wrist_left
+        source: camera-selector/wrist_left
         queue_size: 1
       camera_head_left:
-        source: observation-selector/head_left
+        source: camera-selector/head_left
         queue_size: 1
       camera_head_right:
-        source: observation-selector/head_right
+        source: camera-selector/head_right
         queue_size: 1
       camera_ceiling:
-        source: observation-selector/ceiling
+        source: camera-selector/ceiling
         queue_size: 1
       # Real cell only.
       arm_status_right:
@@ -136,6 +139,12 @@ nodes:
     env:
       SOURCES: "${LEADER:-ker}"
     inputs:
+      # Rate hint for dora-openarm-dataset-recorder, which finds a stream's
+      # rate by following its source node's `tick`, `request_state` or
+      # `request_position` input to a dora/timer. The selector ignores this
+      # input: its source part `request` isn't in SOURCES. The proper fix is
+      # for the recorder to look through selectors.
+      request_state: quittable-tick-leader/tick
       ker_right: leader-ker/follower_position_right
       ker_left: leader-ker/follower_position_left
       dummy_right: leader-dummy/follower_position_right
@@ -302,43 +311,58 @@ nodes:
     outputs:
       - image
 
-  - id: observation-selector
+  # ROBOT picks the observations that are recorded. Arm state and the lifter
+  # (250 Hz) and cameras (30 Hz) are split into two selectors so that each
+  # one carries a single rate; see `request_state` below.
+  - id: state-selector
     path: dora-openarm-selector
     env:
       SOURCES: "${ROBOT:-cell}"
     inputs:
+      # Rate hint for the recorder; see action-selector.
+      request_state: quittable-tick-leader/tick
       cell_right: followers.right/state
       cell_left: followers.left/state
+      cell_elevation_action: lifter/elevation_action
+      cell_elevation_observation: lifter/elevation_observation
+      mujoco_right: mujoco-collect/state_right
+      mujoco_left: mujoco-collect/state_left
+      dummy_right: dummy-follower-right/position
+      dummy_left: dummy-follower-left/position
+    outputs:
+      - right
+      - left
+      - elevation_action
+      - elevation_observation
+      - selected
+
+  - id: camera-selector
+    path: dora-openarm-selector
+    env:
+      SOURCES: "${ROBOT:-cell}"
+    inputs:
+      # Rate hint for the recorder; see action-selector.
+      request_state: quittable-tick-camera/tick
       cell_wrist_right: cameras.wrist-right/image
       cell_wrist_left: cameras.wrist-left/image
       cell_head_left: cameras.head-stereo-splitter/image_0
       cell_head_right: cameras.head-stereo-splitter/image_1
       cell_ceiling: cameras.ceiling/image
-      cell_elevation_action: lifter/elevation_action
-      cell_elevation_observation: lifter/elevation_observation
-      mujoco_right: mujoco-collect/state_right
-      mujoco_left: mujoco-collect/state_left
       mujoco_wrist_right: mujoco-collect/camera_wrist_right
       mujoco_wrist_left: mujoco-collect/camera_wrist_left
       mujoco_head_left: mujoco-collect/camera_head_left
       mujoco_head_right: mujoco-collect/camera_head_right
       mujoco_ceiling: mujoco-collect/camera_ceiling
-      dummy_right: dummy-follower-right/position
-      dummy_left: dummy-follower-left/position
       dummy_wrist_right: dummy-camera-wrist-right/image
       dummy_wrist_left: dummy-camera-wrist-left/image
       dummy_head_left: dummy-camera-head/image
       dummy_ceiling: dummy-camera-ceiling/image
     outputs:
-      - right
-      - left
       - wrist_right
       - wrist_left
       - head_left
       - head_right
       - ceiling
-      - elevation_action
-      - elevation_observation
       - selected
 
   - id: recorder
@@ -351,13 +375,13 @@ nodes:
       command: ui/command
       arm_right_action: action-selector/right
       arm_left_action: action-selector/left
-      arm_right_observation: observation-selector/right
-      arm_left_observation: observation-selector/left
-      camera_wrist_right: observation-selector/wrist_right
-      camera_wrist_left: observation-selector/wrist_left
-      camera_head_left: observation-selector/head_left
-      camera_head_right: observation-selector/head_right
-      camera_ceiling: observation-selector/ceiling
+      arm_right_observation: state-selector/right
+      arm_left_observation: state-selector/left
+      camera_wrist_right: camera-selector/wrist_right
+      camera_wrist_left: camera-selector/wrist_left
+      camera_head_left: camera-selector/head_left
+      camera_head_right: camera-selector/head_right
+      camera_ceiling: camera-selector/ceiling
       ker_metadata: leader-ker/metadata
-      elevation_action: observation-selector/elevation_action
-      elevation_observation: observation-selector/elevation_observation
+      elevation_action: state-selector/elevation_action
+      elevation_observation: state-selector/elevation_observation

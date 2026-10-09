@@ -26,9 +26,10 @@ nodes:
     path: ../dora-openarm-standby
     args: "dora-openarm --side right --align-trigger gripper --config openarm_cell_higher_pd_zero_offset"
     env:
-      # Real cell only: stands by while ROBOT is something else.
-      SELECTED: "${ROBOT:-cell}"
-      RUN_WHEN: cell
+      # Real cell with a real leader only: stands by while ROBOT is something
+      # else, and with LEADER=dummy so generated motion never moves real arms.
+      SELECTED: "${LEADER:-ker}-${ROBOT:-cell}"
+      RUN_WHEN: ker-cell,vr-cell,webxr-cell
     inputs:
       # Event ID is only used. Event value isn't used.
       request_state: _mod/position_right
@@ -42,9 +43,10 @@ nodes:
     path: ../dora-openarm-standby
     args: "dora-openarm --side left --align-trigger gripper --config openarm_cell_higher_pd_zero_offset"
     env:
-      # Real cell only: stands by while ROBOT is something else.
-      SELECTED: "${ROBOT:-cell}"
-      RUN_WHEN: cell
+      # Real cell with a real leader only: stands by while ROBOT is something
+      # else, and with LEADER=dummy so generated motion never moves real arms.
+      SELECTED: "${LEADER:-ker}-${ROBOT:-cell}"
+      RUN_WHEN: ker-cell,vr-cell,webxr-cell
     inputs:
       request_state: _mod/position_left
       move_position: _mod/position_left
