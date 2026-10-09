@@ -14,5 +14,10 @@
 
 dataset/
 /out/
+/dataflow/out/
+/dataflow/*-graph.html
+/data/
 /.venv/
 *.txt
+*.egg-info/
+.pytest_cache/
