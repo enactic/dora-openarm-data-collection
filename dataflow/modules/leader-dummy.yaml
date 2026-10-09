@@ -12,12 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-dataset/
-/out/
-/dataflow/out/
-/dataflow/*-graph.html
-/data/
-/.venv/
-*.txt
-*.egg-info/
-.pytest_cache/
+# LEADER=dummy: generated joint positions, no hardware.
+module:
+  name: leader-dummy
+  inputs: [tick]
+  outputs: [follower_position_right, follower_position_left]
+
+# Inner `path:` starts with `../` because dora resolves it relative to this
+# file; a bare executable name would become `modules/<name>`.
+nodes:
+  - id: ker
+    path: ../dora-openarm-dummy-ker
+    inputs:
+      tick: _mod/tick
+    outputs:
+      - position_right
+      - position_left
+      - follower_position_right
+      - follower_position_left
+      - joystick_x
+      - joystick_y
+      - joystick_button

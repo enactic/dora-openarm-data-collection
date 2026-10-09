@@ -17,7 +17,9 @@ name = "dora-openarm-data-collection"
 version = "0.1.0"
 requires-python = "==3.12.*"
 dependencies = [
-    "dora-rs-cli==1.0.1",
+    # dora-rs and dora-rs-cli must match: bump both together.
+    "dora-rs >= 1.0.0, < 1.1",
+    "dora-rs-cli >= 1.0.0, < 1.1",
     "dora-openarm",
     "dora-openarm-cell-lifter",
     "dora-openarm-data-collection-ui",
@@ -29,6 +31,7 @@ dependencies = [
     "dora-openarm-kinematics",
     "dora-openarm-mujoco",
     "dora-openarm-quitter",
+    "dora-openarm-selector",
     "dora-openarm-vr",
     "dora-openarm-webxr",
     "dora-opencv-image-splitter",
@@ -51,6 +54,7 @@ dora-openarm-ker = { path = "nodes/dora-openarm-ker", editable = true }
 dora-openarm-kinematics = { path = "nodes/dora-openarm-kinematics", editable = true }
 dora-openarm-mujoco = { path = "nodes/dora-openarm-mujoco", editable = true }
 dora-openarm-quitter = { path = "nodes/dora-openarm-quitter", editable = true }
+dora-openarm-selector = { path = "nodes/dora-openarm-selector", editable = true }
 dora-openarm-vr = { path = "nodes/dora-openarm-vr", editable = true }
 dora-openarm-webxr = { path = "nodes/dora-openarm-webxr", editable = true }
 dora-opencv-image-splitter = { path = "nodes/dora-opencv-image-splitter", editable = true }

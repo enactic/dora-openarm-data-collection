@@ -13,7 +13,8 @@ uv sync --locked
 source .venv/bin/activate
 ```
 
-[`pyproject.toml`](pyproject.toml) selects Python 3.12, Dora CLI 1.0.1,
+[`pyproject.toml`](pyproject.toml) selects Python 3.12, Dora 1.0.x
+(`dora-rs` and `dora-rs-cli` are kept on the same version; `uv.lock` resolves 1.0.1),
 and all node dependencies, including `openarm-driver>=0.5.1`.
 uv creates `.venv` in this repository and downloads a compatible Python if needed;
 no `.python-version` file is required. Nodes under `nodes/` are installed editable,
@@ -89,6 +90,32 @@ Open http://localhost:8000/ on the local machine for the data collection UI, and
 ### Dummy configuration
 
 [`dataflow_dummy.yaml`](dataflow_dummy.yaml) is a configuration that doesn't use real OpenArm. We can use this for testing a dataflow without real OpenArm.
+
+### Switchable configuration (experimental)
+
+[`dataflow/dataflow-main.yaml`](dataflow/dataflow-main.yaml) merges the KER, VR, WebXR and dummy configurations into one dataflow. Environment variables pick the leader and the robot through dora-openarm-selector nodes. The [`nodes/dora-openarm-selector`](nodes/dora-openarm-selector) submodule points at the [shokubutsuu/dora-openarm-selector fork](https://github.com/shokubutsuu/dora-openarm-selector/tree/feature/standby) (branch `feature/standby`), because `dora-openarm-standby` exists only there, not in [enactic/dora-openarm-selector](https://github.com/enactic/dora-openarm-selector):
+
+| Variable | Values | Default |
+|---|---|---|
+| `LEADER` | `ker`, `vr`, `webxr`, `dummy` | `ker` |
+| `ROBOT` | `cell` (real Cell), `mujoco`, `dummy` | `cell` |
+
+Run it from the `dataflow/` directory, because nodes use it as their working directory and file paths in it start with `../`. Set `METADATA_FILE` to match `ROBOT` (default: `../metadata.yaml`):
+
+```bash
+cd dataflow
+LEADER=webxr ROBOT=mujoco METADATA_FILE=../metadata_mujoco.yaml dora run dataflow-main.yaml --uv
+```
+
+Nodes that need hardware or a port (KER, VR/WebXR receivers, followers, lifter, cameras, MuJoCo) run through `dora-openarm-standby`. When they aren't selected, they stand by without opening any device, so `LEADER=dummy ROBOT=dummy` needs no hardware. The real followers run only with a real leader (`ker`, `vr` or `webxr`) and `ROBOT=cell`, so `LEADER=dummy ROBOT=cell` never moves the real arms. Datasets are recorded under `data/<LEADER>-<ROBOT>/`. The pedestal configuration isn't merged because its followers use another `--config` on the same CAN buses.
+
+Known gaps compared with the separate dataflows:
+
+- The WebXR headset gets no head camera view.
+- The MuJoCo node runs without `--debug-frames` and the `pose_right`/`pose_left` inputs.
+- `ROBOT=dummy` records the dummy head camera as `camera_head_left`, while [`metadata_dummy.yaml`](metadata_dummy.yaml) calls it `head`.
+- With `ROBOT` other than `cell`, the UI arm badges show STOPPED and its "Start Arm" button does nothing.
+- The selectors have a `request_state` input only so that the recorder can find each stream's rate.
 
 ## Debugging OpenArm libraries
 

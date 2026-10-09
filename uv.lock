@@ -280,9 +280,11 @@ dependencies = [
     { name = "dora-openarm-kinematics" },
     { name = "dora-openarm-mujoco" },
     { name = "dora-openarm-quitter" },
+    { name = "dora-openarm-selector" },
     { name = "dora-openarm-vr" },
     { name = "dora-openarm-webxr" },
     { name = "dora-opencv-image-splitter" },
+    { name = "dora-rs" },
     { name = "dora-rs-cli" },
     { name = "openarm-driver" },
     { name = "opencv-video-capture" },
@@ -301,10 +303,12 @@ requires-dist = [
     { name = "dora-openarm-kinematics", editable = "nodes/dora-openarm-kinematics" },
     { name = "dora-openarm-mujoco", editable = "nodes/dora-openarm-mujoco" },
     { name = "dora-openarm-quitter", editable = "nodes/dora-openarm-quitter" },
+    { name = "dora-openarm-selector", editable = "nodes/dora-openarm-selector" },
     { name = "dora-openarm-vr", editable = "nodes/dora-openarm-vr" },
     { name = "dora-openarm-webxr", editable = "nodes/dora-openarm-webxr" },
     { name = "dora-opencv-image-splitter", editable = "nodes/dora-opencv-image-splitter" },
-    { name = "dora-rs-cli", specifier = "==1.0.1" },
+    { name = "dora-rs", specifier = ">=1.0.0,<1.1" },
+    { name = "dora-rs-cli", specifier = ">=1.0.0,<1.1" },
     { name = "openarm-driver", specifier = ">=0.5.1" },
     { name = "opencv-video-capture" },
 ]
@@ -505,6 +509,27 @@ dev = [
     { name = "dora-rs-cli", specifier = ">=0.5.0,<=1.0.1" },
     { name = "pytest", specifier = ">=8.1.1" },
     { name = "ruff", specifier = "==0.14.11" },
+]
+
+[[package]]
+name = "dora-openarm-selector"
+version = "0.2.0"
+source = { editable = "nodes/dora-openarm-selector" }
+dependencies = [
+    { name = "dora-rs" },
+    { name = "pyarrow" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "dora-rs", specifier = ">=1.0.0" },
+    { name = "pyarrow" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "dora-rs-cli", specifier = ">=1.0.0" },
+    { name = "pytest", specifier = ">=8.1.1" },
 ]
 
 [[package]]

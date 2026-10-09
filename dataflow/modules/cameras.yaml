@@ -1,0 +1,107 @@
+# Copyright 2026 Enactic, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+module:
+  name: cameras
+  inputs: [tick]
+  # No declared outputs: every camera emits `image`, and a declared output must
+  # have exactly one producer. Reference them from the parent as
+  # `cameras.wrist-right/image`, `cameras.head-stereo-splitter/image_0`, etc.
+
+nodes:
+  - id: wrist-right
+    path: ../dora-openarm-standby
+    args: opencv-video-capture
+    env:
+      # Real cell only: stands by while ROBOT is something else.
+      SELECTED: "${ROBOT:-cell}"
+      RUN_WHEN: cell
+      # Please configure!
+      CAPTURE_PATH: "/dev/camera_wrist_right"
+      ENCODING: "jpeg"
+      IMAGE_HEIGHT: 600
+      IMAGE_WIDTH: 960
+      JPEG_QUALITY: 90
+    inputs:
+      tick: _mod/tick
+    outputs:
+      - image
+
+  - id: wrist-left
+    path: ../dora-openarm-standby
+    args: opencv-video-capture
+    env:
+      # Real cell only: stands by while ROBOT is something else.
+      SELECTED: "${ROBOT:-cell}"
+      RUN_WHEN: cell
+      # Please configure!
+      CAPTURE_PATH: "/dev/camera_wrist_left"
+      ENCODING: "jpeg"
+      IMAGE_HEIGHT: 600
+      IMAGE_WIDTH: 960
+      JPEG_QUALITY: 90
+    inputs:
+      tick: _mod/tick
+    outputs:
+      - image
+
+  - id: head-stereo
+    path: ../dora-openarm-standby
+    args: opencv-video-capture
+    env:
+      # Real cell only: stands by while ROBOT is something else.
+      SELECTED: "${ROBOT:-cell}"
+      RUN_WHEN: cell
+      # Please configure!
+      # Stereo camera: left and right images placed side by side in one frame.
+      CAPTURE_PATH: "/dev/camera_head_stereo"
+      ENCODING: "bgr8"
+      IMAGE_HEIGHT: 720
+      IMAGE_WIDTH: 2560
+    inputs:
+      tick: _mod/tick
+    outputs:
+      - image
+
+  - id: head-stereo-splitter
+    path: ../dora-opencv-image-splitter
+    env:
+      SPLIT_MODE: "vertical"
+      NUM_SPLITS: 2
+      JPEG_QUALITY: 90
+      IMAGE_HEIGHT: 720
+      IMAGE_WIDTH: 2560
+    inputs:
+      image: head-stereo/image
+    outputs:
+      - image_0
+      - image_1
+
+  - id: ceiling
+    path: ../dora-openarm-standby
+    args: opencv-video-capture
+    env:
+      # Real cell only: stands by while ROBOT is something else.
+      SELECTED: "${ROBOT:-cell}"
+      RUN_WHEN: cell
+      # Please configure!
+      CAPTURE_PATH: "/dev/camera_ceiling"
+      ENCODING: "jpeg"
+      IMAGE_HEIGHT: 600
+      IMAGE_WIDTH: 960
+      JPEG_QUALITY: 90
+    inputs:
+      tick: _mod/tick
+    outputs:
+      - image

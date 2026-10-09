@@ -1,0 +1,61 @@
+# Copyright 2026 Enactic, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# LEADER=vr: the Quest app sends controller poses over UDP 5006 and IK turns
+# them into joint positions.
+module:
+  name: leader-vr
+  inputs: [tick]
+  outputs:
+    [position_right, position_left, joystick_y_left, button_a, button_b, button_x, vr_receive_times]
+
+# Inner `path:` starts with `../` because dora resolves it relative to this
+# file; a bare executable name would become `modules/<name>`.
+nodes:
+  - id: udp-receiver
+    path: ../dora-openarm-standby
+    args: "dora-openarm-quest-receiver --host 0.0.0.0 --port 5006"
+    env:
+      # Stands by (UDP 5006 not bound) while LEADER is something else.
+      SELECTED: "${LEADER:-ker}"
+      RUN_WHEN: vr
+    inputs:
+      tick: _mod/tick
+    outputs:
+      - pose_right
+      - trigger_right
+      - pose_left
+      - trigger_left
+      - joystick_y_left
+      - button_a
+      - button_b
+      - button_x
+      - status
+      - vr_receive_times
+
+  - id: ik
+    path: ../dora-openarm-ik
+    args: >-
+      --mode bimanual --tick-hz 250
+      --max-iters 5 --damping 0.1
+      --posture-cost 0 --lm-damping 0.01 --limit-velocity
+    inputs:
+      target_right: udp-receiver/pose_right
+      target_left: udp-receiver/pose_left
+      trigger_right: udp-receiver/trigger_right
+      trigger_left: udp-receiver/trigger_left
+    outputs:
+      - position_left
+      - position_right
+      - status

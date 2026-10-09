@@ -1,0 +1,101 @@
+# Copyright 2026 Enactic, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# LEADER=webxr: the headset browser sends controller poses over HTTPS 8443 and
+# IK turns them into joint positions.
+module:
+  name: leader-webxr
+  inputs: [tick, command]
+  # Only the IK outputs are declared: `webxr` and `quit` both produce
+  # button_a etc., and a declared output must have exactly one producer.
+  # Reference the gated ones from the parent as `<module id>.quit/button_a`.
+  outputs: [position_right, position_left]
+
+# Inner `path:` starts with `../` because dora resolves it relative to this
+# file; a bare executable name would become `modules/<name>`.
+# Env paths are not rewritten: nodes run in the dataflow's directory.
+nodes:
+  - id: webxr
+    path: ../dora-openarm-standby
+    args: dora-openarm-webxr
+    env:
+      # Stands by (no TLS files read, HTTPS 8443 not bound) while LEADER is
+      # something else.
+      SELECTED: "${LEADER:-ker}"
+      RUN_WHEN: webxr
+      TLS_CERTIFICATE_FILE: "../nodes/dora-openarm-webxr/example/server.crt"
+      TLS_KEY_FILE: "../nodes/dora-openarm-webxr/example/server.key"
+      VIEW_CONFIGURATION_FILE: "../view-webxr.yaml"
+    inputs:
+      # Closing this input on Quit lets the WebXR server and peers shut down.
+      tick: _mod/tick
+    outputs:
+      - pose_right
+      - trigger_right
+      - pose_left
+      - trigger_left
+      - grip_right
+      - grip_left
+      - joystick_x_right
+      - joystick_y_right
+      - joystick_x_left
+      - joystick_y_left
+      - button_a
+      - button_b
+      - button_x
+      - button_y
+      - status
+      - vr_receive_times
+      - pose_reference
+
+  # Closes every WebXR output on Quit.
+  - id: quit
+    path: ../dora-openarm-quitter
+    inputs:
+      command: _mod/command
+      pose_right: webxr/pose_right
+      trigger_right: webxr/trigger_right
+      pose_left: webxr/pose_left
+      trigger_left: webxr/trigger_left
+      joystick_y_left: webxr/joystick_y_left
+      button_a: webxr/button_a
+      button_b: webxr/button_b
+      button_x: webxr/button_x
+      vr_receive_times: webxr/vr_receive_times
+    outputs:
+      - pose_right
+      - trigger_right
+      - pose_left
+      - trigger_left
+      - joystick_y_left
+      - button_a
+      - button_b
+      - button_x
+      - vr_receive_times
+
+  - id: ik
+    path: ../dora-openarm-ik
+    args: >-
+      --mode bimanual --tick-hz 250
+      --max-iters 5 --damping 0.1
+      --posture-cost 0 --lm-damping 0.01 --limit-velocity
+    inputs:
+      target_right: quit/pose_right
+      target_left: quit/pose_left
+      trigger_right: quit/trigger_right
+      trigger_left: quit/trigger_left
+    outputs:
+      - position_left
+      - position_right
+      - status
