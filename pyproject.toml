@@ -17,8 +17,9 @@ name = "dora-openarm-data-collection"
 version = "0.1.0"
 requires-python = "==3.12.*"
 dependencies = [
-    "dora-rs >= 1.0.0",
-    "dora-rs-cli >= 1.0.0",
+    # dora-rs and dora-rs-cli must match: bump both together.
+    "dora-rs >= 1.0.0, < 1.1",
+    "dora-rs-cli >= 1.0.0, < 1.1",
     "dora-openarm",
     "dora-openarm-cell-lifter",
     "dora-openarm-data-collection-ui",

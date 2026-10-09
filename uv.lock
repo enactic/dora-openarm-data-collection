@@ -307,8 +307,8 @@ requires-dist = [
     { name = "dora-openarm-vr", editable = "nodes/dora-openarm-vr" },
     { name = "dora-openarm-webxr", editable = "nodes/dora-openarm-webxr" },
     { name = "dora-opencv-image-splitter", editable = "nodes/dora-opencv-image-splitter" },
-    { name = "dora-rs", specifier = ">=1.0.0" },
-    { name = "dora-rs-cli", specifier = ">=1.0.0" },
+    { name = "dora-rs", specifier = ">=1.0.0,<1.1" },
+    { name = "dora-rs-cli", specifier = ">=1.0.0,<1.1" },
     { name = "openarm-driver", specifier = ">=0.5.1" },
     { name = "opencv-video-capture" },
 ]
