@@ -1,0 +1,54 @@
+# Copyright 2026 Enactic, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+module:
+  name: followers
+  inputs: [position_right, position_left, command]
+  # No declared outputs: both followers emit `state`/`status`, and a declared
+  # output must have exactly one producer. Reference them from the parent as
+  # `followers.right/state`, `followers.left/status`, etc.
+
+nodes:
+  - id: right
+    # `../` because dora resolves inner paths relative to this file's directory;
+    # a bare executable name would become `modules/dora-openarm-standby`.
+    path: ../dora-openarm-standby
+    args: "dora-openarm --side right --align-trigger gripper --config openarm_cell_higher_pd_zero_offset"
+    env:
+      # Real cell only: stands by while ROBOT is something else.
+      SELECTED: "${ROBOT:-cell}"
+      RUN_WHEN: cell
+    inputs:
+      # Event ID is only used. Event value isn't used.
+      request_state: _mod/position_right
+      move_position: _mod/position_right
+      command: _mod/command
+    outputs:
+      - state
+      - status
+
+  - id: left
+    path: ../dora-openarm-standby
+    args: "dora-openarm --side left --align-trigger gripper --config openarm_cell_higher_pd_zero_offset"
+    env:
+      # Real cell only: stands by while ROBOT is something else.
+      SELECTED: "${ROBOT:-cell}"
+      RUN_WHEN: cell
+    inputs:
+      request_state: _mod/position_left
+      move_position: _mod/position_left
+      command: _mod/command
+    outputs:
+      - state
+      - status

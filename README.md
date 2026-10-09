@@ -90,6 +90,24 @@ Open http://localhost:8000/ on the local machine for the data collection UI, and
 
 [`dataflow_dummy.yaml`](dataflow_dummy.yaml) is a configuration that doesn't use real OpenArm. We can use this for testing a dataflow without real OpenArm.
 
+### Switchable configuration (experimental)
+
+[`dataflow/dataflow-main.yaml`](dataflow/dataflow-main.yaml) merges the KER, VR, WebXR and dummy configurations into one dataflow. Environment variables pick the leader and the robot through [dora-openarm-selector](https://github.com/enactic/dora-openarm-selector) nodes:
+
+| Variable | Values | Default |
+|---|---|---|
+| `LEADER` | `ker`, `vr`, `webxr`, `dummy` | `ker` |
+| `ROBOT` | `cell` (real Cell), `mujoco`, `dummy` | `cell` |
+
+Run it from the `dataflow/` directory, because nodes use it as their working directory and file paths in it start with `../`. Set `METADATA_FILE` to match `ROBOT` (default: `../metadata.yaml`):
+
+```bash
+cd dataflow
+LEADER=webxr ROBOT=mujoco METADATA_FILE=../metadata_mujoco.yaml dora run dataflow-main.yaml --uv
+```
+
+Nodes that need hardware or a port (KER, VR/WebXR receivers, followers, lifter, cameras, MuJoCo) run through `dora-openarm-standby`. When they aren't selected, they stand by without opening any device, so `LEADER=dummy ROBOT=dummy` needs no hardware. Datasets are recorded under `data/<LEADER>-<ROBOT>/`. The pedestal configuration isn't merged because its followers use another `--config` on the same CAN buses.
+
 ## Debugging OpenArm libraries
 
 The OpenArm-specific dependency repositories are checked out under [`lib/`](lib/README.md).
