@@ -1,0 +1,123 @@
+# Copyright 2026 Enactic, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# ROBOT=dummy: no hardware. Arms echo their targets and cameras send test
+# images.
+#
+# Experimental: one dataflow per robot, with the leader picked by LEADER:
+#
+#   LEADER=ker|vr|webxr|dummy   modules/leader-$LEADER.yaml   (default: ker)
+#
+# dora doesn't expand environment variables in `module:`, so run it through
+# ../scripts/dora-switch.sh, which does and also picks this file by ROBOT:
+#
+#   LEADER=webxr ROBOT=dummy ../scripts/dora-switch.sh run --uv
+#
+# All leader modules have the same inputs and outputs; see
+# modules/leader-ker.yaml.
+#
+# Nodes run with this file's directory (dataflow/) as their working directory,
+# so file paths in env are relative to it and start with `../`.
+
+nodes:
+  - id: ui
+    path: dora-openarm-data-collection-ui
+    env:
+      METADATA_FILE: "${METADATA_FILE:-../metadata_dummy.yaml}"
+    inputs:
+      # We need at least one input to keep this node alive.
+      tick: dora/timer/secs/1
+      # Episode buttons and receive rate of a VR leader.
+      button_a:
+        source: leader/button_a
+        queue_size: 100
+      button_b:
+        source: leader/button_b
+        queue_size: 100
+      vr_receive_times:
+        source: leader/vr_receive_times
+        queue_size: 100
+      # KER receive rate and device information for the UI leader panel.
+      ker_position: leader/ker_position
+      ker_metadata: leader/metadata
+      camera_wrist_right:
+        source: cameras.wrist-right/image
+        queue_size: 1
+      camera_wrist_left:
+        source: cameras.wrist-left/image
+        queue_size: 1
+      camera_head:
+        source: cameras.head/image
+        queue_size: 1
+      camera_ceiling:
+        source: cameras.ceiling/image
+        queue_size: 1
+      arm_status_right:
+        source: followers.right/status
+      arm_status_left:
+        source: followers.left/status
+    outputs:
+      - command
+
+  - id: quittable-tick-leader
+    path: dora-openarm-quitter
+    inputs:
+      command: ui/command
+      # 250Hz
+      tick: dora/timer/millis/4
+    outputs:
+      - tick
+
+  - id: quittable-tick-camera
+    path: dora-openarm-quitter
+    inputs:
+      command: ui/command
+      tick: dora/timer/millis/33 # 30fps
+    outputs:
+      - tick
+
+  - id: leader
+    module: modules/leader-${LEADER:-ker}.yaml
+    inputs:
+      tick: quittable-tick-leader/tick
+      command: ui/command
+
+  - id: followers
+    module: modules/dummy-followers.yaml
+    inputs:
+      position_right: leader/follower_position_right
+      position_left: leader/follower_position_left
+
+  - id: cameras
+    module: modules/dummy-cameras.yaml
+    inputs:
+      tick: quittable-tick-camera/tick
+
+  - id: recorder
+    path: dora-openarm-dataset-recorder
+    env:
+      METADATA_FILE: "${METADATA_FILE:-../metadata_dummy.yaml}"
+      # Output directory for recorded datasets, e.g. ../data/dummy-dummy.
+      DIRECTORY: "../data/${LEADER:-ker}-dummy"
+    inputs:
+      command: ui/command
+      arm_right_action: leader/follower_position_right
+      arm_left_action: leader/follower_position_left
+      arm_right_observation: followers.right/position
+      arm_left_observation: followers.left/position
+      camera_wrist_right: cameras.wrist-right/image
+      camera_wrist_left: cameras.wrist-left/image
+      camera_head: cameras.head/image
+      camera_ceiling: cameras.ceiling/image
+      ker_metadata: leader/metadata
