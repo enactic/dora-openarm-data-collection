@@ -48,7 +48,7 @@ jobs:
           uv run --no-sync dora up
       - name: Run
         run: |
-          uv run --no-sync dora start dataflow_dummy.yaml --attach &
+          LEADER=dummy ROBOT=dummy uv run --no-sync scripts/dora-switch.sh start --attach &
           # Wait for the UI node's HTTP server
           for i in $(seq 1 30); do
             if curl --silent --output /dev/null http://127.0.0.1:8000/; then
@@ -69,4 +69,4 @@ jobs:
       - uses: actions/upload-artifact@v7
         with:
           name: dataset
-          path: dataset/
+          path: data/dummy-dummy/
