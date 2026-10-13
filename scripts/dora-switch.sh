@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/bin/sh
 # Copyright 2026 Enactic, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,24 +22,24 @@
 #
 # The expanded file is written next to robot-$ROBOT.yaml so that module paths
 # and the nodes' working directory stay the same.
-set -euo pipefail
+set -eu
 
-if (( $# < 1 )); then
+if [ $# -lt 1 ]; then
     echo "Usage: [LEADER=...] [ROBOT=...] $0 <dora command> [args...]" >&2
     exit 1
 fi
 
 # Generated motion must never move the real arms.
-if [[ ${LEADER:-ker} == dummy && ${ROBOT:-cell} == cell ]]; then
+if [ "${LEADER:-ker}" = dummy ] && [ "${ROBOT:-cell}" = cell ]; then
     echo 'LEADER=dummy with ROBOT=cell would move the real arms; use ROBOT=mujoco or ROBOT=dummy.' >&2
     exit 1
 fi
 
-cd "${0:A:h}/../dataflow"
+cd "$(dirname "$0")/../dataflow"
 
 input="robot-${ROBOT:-cell}.yaml"
-if [[ ! -f $input ]]; then
-    echo "Unknown ROBOT=${ROBOT}: dataflow/$input doesn't exist." >&2
+if [ ! -f "$input" ]; then
+    echo "Unknown ROBOT=${ROBOT:-}: dataflow/$input doesn't exist." >&2
     exit 1
 fi
 
