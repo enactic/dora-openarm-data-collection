@@ -56,9 +56,8 @@ nodes:
   # The UI shows the KER panel once `ker_position` arrives, so only this
   # leader sends it. A module output keeps its inner name, hence the rename.
   - id: ui-rate
-    path: dora-openarm-quitter
+    path: dora-echo
     inputs:
-      command: _mod/command
       ker_position: ker/follower_position_right
     outputs:
       - ker_position

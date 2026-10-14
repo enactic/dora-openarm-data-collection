@@ -69,6 +69,9 @@ nodes:
 
   # Closes the pose inputs of IK on Quit, and renames the IK outputs to the
   # common `follower_position_*`: a module output keeps its inner name.
+  # WebXR stops only after the robot closes the cameras, and some robots,
+  # e.g. the pedestal, close them only after their followers stop, so the
+  # follower targets must stop on Quit without waiting for WebXR.
   - id: quit
     path: dora-openarm-quitter
     inputs:

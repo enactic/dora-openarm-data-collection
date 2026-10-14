@@ -64,7 +64,7 @@ nodes:
   # Both arms send `position`/`status` but a module output must have one
   # producer with the same name, so forward them with the common names.
   - id: arms
-    path: dora-openarm-quitter
+    path: dora-echo
     inputs:
       state_right: right/position
       state_left: left/position

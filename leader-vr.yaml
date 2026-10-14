@@ -66,9 +66,8 @@ nodes:
   # A module output keeps its inner name, so rename the IK outputs to the
   # common `follower_position_*`.
   - id: out
-    path: dora-openarm-quitter
+    path: dora-echo
     inputs:
-      command: _mod/command
       follower_position_right: ik/position_right
       follower_position_left: ik/position_left
     outputs:
