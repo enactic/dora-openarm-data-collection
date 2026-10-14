@@ -30,5 +30,6 @@ equipment:
     cameras:
       wrist_left: {}
       wrist_right: {}
-      head: {}
       ceiling: {}
+      head_left: {}
+      head_right: {}

@@ -36,9 +36,9 @@ nodes:
   - id: webxr
     path: ../dora-openarm-webxr
     env:
-      TLS_CERTIFICATE_FILE: "../nodes/dora-openarm-webxr/example/server.crt"
-      TLS_KEY_FILE: "../nodes/dora-openarm-webxr/example/server.key"
-      VIEW_CONFIGURATION_FILE: "../view-webxr.yaml"
+      TLS_CERTIFICATE_FILE: "nodes/dora-openarm-webxr/example/server.crt"
+      TLS_KEY_FILE: "nodes/dora-openarm-webxr/example/server.key"
+      VIEW_CONFIGURATION_FILE: "view-webxr.yaml"
     inputs:
       # Closing this input on Quit lets the WebXR server and peers shut down.
       tick: _mod/tick

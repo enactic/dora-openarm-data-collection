@@ -15,7 +15,7 @@
 # LEADER=ker: KER leader arms over USB send joint positions directly.
 #
 # Every leader-*.yaml declares the same inputs and outputs so that
-# each dataflow/robot-*.yaml can wire whichever one LEADER picks. Outputs that this
+# dataflow.yaml can wire whichever one LEADER picks. Outputs that this
 # leader doesn't have are declared on a node that never sends them.
 module:
   name: leader-ker

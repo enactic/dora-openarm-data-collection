@@ -14,8 +14,7 @@
 
 dataset/
 /out/
-/dataflow/out/
-/dataflow/*-graph.html
+/*-graph.html
 /data/
 /.venv/
 *.txt

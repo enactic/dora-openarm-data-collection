@@ -12,29 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# ROBOT=dummy: no hardware. Arms echo their targets and cameras send test
-# images.
-#
-# Experimental: one dataflow per robot, with the leader picked by LEADER:
+# Teleoperation and data collection. The leader and the robot are modules
+# picked by environment variables:
 #
 #   LEADER=ker|vr|webxr|dummy   modules/leader-$LEADER.yaml   (default: ker)
+#   ROBOT=cell|mujoco|dummy     modules/robot-$ROBOT.yaml     (default: dummy)
 #
 # dora doesn't expand environment variables in `module:`, so run it through
 # scripts/dora-envsubst, which does:
 #
-#   LEADER=webxr scripts/dora-envsubst run dataflow/robot-dummy.yaml --uv
+#   LEADER=webxr ROBOT=mujoco scripts/dora-envsubst run dataflow.yaml --uv
 #
-# All leader modules have the same inputs and outputs; see
-# modules/leader-ker.yaml.
-#
-# Nodes run with this file's directory (dataflow/) as their working directory,
-# so file paths in env are relative to it and start with `../`.
+# All leader modules have the same inputs and outputs, and so do all robot
+# modules; see modules/leader-ker.yaml and modules/robot-cell.yaml.
 
 nodes:
   - id: ui
     path: dora-openarm-data-collection-ui
     env:
-      METADATA_FILE: "${METADATA_FILE:-../metadata_dummy.yaml}"
+      METADATA_FILE: "metadata_${ROBOT:-dummy}.yaml"
     inputs:
       # We need at least one input to keep this node alive.
       tick: dora/timer/secs/1
@@ -52,23 +48,28 @@ nodes:
       ker_position: leader/ker_position
       ker_metadata: leader/metadata
       camera_wrist_right:
-        source: cameras.wrist-right/image
+        source: robot/camera_wrist_right
         queue_size: 1
       camera_wrist_left:
-        source: cameras.wrist-left/image
+        source: robot/camera_wrist_left
         queue_size: 1
-      camera_head:
-        source: cameras.head/image
+      camera_head_left:
+        source: robot/camera_head_left
+        queue_size: 1
+      camera_head_right:
+        source: robot/camera_head_right
         queue_size: 1
       camera_ceiling:
-        source: cameras.ceiling/image
+        source: robot/camera_ceiling
         queue_size: 1
-      arm_status_right:
-        source: followers.right/status
-      arm_status_left:
-        source: followers.left/status
+      arm_status_right: robot/status_right
+      arm_status_left: robot/status_left
+      # Motor temperatures and CAN bus state for the UI motor panel.
+      arm_state_right: robot/arm_state_right
+      arm_state_left: robot/arm_state_left
     outputs:
       - command
+      - arm_command
 
   - id: quittable-tick-leader
     path: dora-openarm-quitter
@@ -93,31 +94,34 @@ nodes:
       tick: quittable-tick-leader/tick
       command: ui/command
 
-  - id: followers
-    module: modules/dummy-followers.yaml
+  - id: robot
+    module: modules/robot-${ROBOT:-dummy}.yaml
     inputs:
+      tick: quittable-tick-leader/tick
+      camera_tick: quittable-tick-camera/tick
+      command: ui/arm_command
       position_right: leader/follower_position_right
       position_left: leader/follower_position_left
-
-  - id: cameras
-    module: modules/dummy-cameras.yaml
-    inputs:
-      tick: quittable-tick-camera/tick
+      joystick_y: leader/joystick_y_left
+      button_x: leader/button_x
 
   - id: recorder
     path: dora-openarm-dataset-recorder
     env:
-      METADATA_FILE: "${METADATA_FILE:-../metadata_dummy.yaml}"
-      # Output directory for recorded datasets, e.g. ../data/dummy-dummy.
-      DIRECTORY: "../data/${LEADER:-ker}-dummy"
+      METADATA_FILE: "metadata_${ROBOT:-dummy}.yaml"
+      # Output directory for recorded datasets, e.g. data/webxr-mujoco.
+      DIRECTORY: "data/${LEADER:-ker}-${ROBOT:-dummy}"
     inputs:
       command: ui/command
       arm_right_action: leader/follower_position_right
       arm_left_action: leader/follower_position_left
-      arm_right_observation: followers.right/position
-      arm_left_observation: followers.left/position
-      camera_wrist_right: cameras.wrist-right/image
-      camera_wrist_left: cameras.wrist-left/image
-      camera_head: cameras.head/image
-      camera_ceiling: cameras.ceiling/image
+      arm_right_observation: robot/state_right
+      arm_left_observation: robot/state_left
+      camera_wrist_right: robot/camera_wrist_right
+      camera_wrist_left: robot/camera_wrist_left
+      camera_head_left: robot/camera_head_left
+      camera_head_right: robot/camera_head_right
+      camera_ceiling: robot/camera_ceiling
       ker_metadata: leader/metadata
+      elevation_action: robot/elevation_action
+      elevation_observation: robot/elevation_observation
