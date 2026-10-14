@@ -13,8 +13,7 @@ uv sync --locked
 source .venv/bin/activate
 ```
 
-[`pyproject.toml`](pyproject.toml) selects Python 3.12, Dora 1.0.x
-(`dora-rs` and `dora-rs-cli` are kept on the same version; `uv.lock` resolves 1.0.1),
+[`pyproject.toml`](pyproject.toml) selects Python 3.12, Dora CLI 1.0.1,
 and all node dependencies, including `openarm-driver>=0.5.1`.
 uv creates `.venv` in this repository and downloads a compatible Python if needed;
 no `.python-version` file is required. Nodes under `nodes/` are installed editable,
