@@ -56,7 +56,7 @@ are modules next to it picked by environment variables:
 
 | Variable | Values | Picks | Default |
 |---|---|---|---|
-| `LEADER` | `ker`, `vr`, `webxr`, `dummy` | `leader-$LEADER.yaml` | `ker` |
+| `LEADER` | `ker`, `vr`, `webxr`, `dummy` | `leader-$LEADER.yaml` | `dummy` |
 | `ROBOT` | `cell` (real Cell), `mujoco`, `dummy` | `robot-$ROBOT.yaml` | `dummy` |
 
 dora doesn't expand environment variables in `module:` paths

@@ -15,7 +15,7 @@
 # Teleoperation and data collection. The leader and the robot are modules
 # picked by environment variables:
 #
-#   LEADER=ker|vr|webxr|dummy   leader-$LEADER.yaml   (default: ker)
+#   LEADER=ker|vr|webxr|dummy   leader-$LEADER.yaml   (default: dummy)
 #   ROBOT=cell|mujoco|dummy     robot-$ROBOT.yaml     (default: dummy)
 #
 # dora doesn't expand environment variables in `module:`, so run it through
@@ -93,7 +93,7 @@ nodes:
       - tick
 
   - id: leader
-    module: leader-${LEADER:-ker}.yaml
+    module: leader-${LEADER:-dummy}.yaml
     inputs:
       tick: quittable-tick-leader/tick
       command: ui/command
@@ -114,7 +114,7 @@ nodes:
     env:
       METADATA_FILE: "metadata_${ROBOT:-dummy}.yaml"
       # Output directory for recorded datasets, e.g. data/webxr-mujoco.
-      DIRECTORY: "data/${LEADER:-ker}-${ROBOT:-dummy}"
+      DIRECTORY: "data/${LEADER:-dummy}-${ROBOT:-dummy}"
     inputs:
       command: ui/command
       arm_right_action: leader/follower_position_right
