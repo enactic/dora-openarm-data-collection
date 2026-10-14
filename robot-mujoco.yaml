@@ -45,8 +45,8 @@ nodes:
     path: dora-openarm-mujoco
     args: "--scene demo --keyframe home --enable-collision --ctrl --viewer --render"
     inputs:
-      move_position_right: _mod/position_right
-      move_position_left: _mod/position_left
+      move_position_right: controls/position_right
+      move_position_left: controls/position_left
       request_state: _mod/tick
       joystick_y: controls/joystick_y
       button_x: controls/button_x
@@ -67,16 +67,19 @@ nodes:
       - elevation_action
       - elevation_observation
 
-  # The cameras are rendered from the leader's targets, and a leader may wait
-  # for the cameras, e.g. WebXR. Close the controls that come directly from
-  # the leader on Quit so that MuJoCo stops and closes the cameras. The
-  # targets and the tick are closed by their sources.
+  # The cameras are rendered from the leader's inputs, and a leader may wait
+  # for the cameras, e.g. WebXR. Close all inputs from the leader on Quit so
+  # that MuJoCo stops and closes the cameras whichever leader is used.
   - id: controls
     path: dora-openarm-quitter
     inputs:
       command: _mod/command
+      position_right: _mod/position_right
+      position_left: _mod/position_left
       joystick_y: _mod/joystick_y
       button_x: _mod/button_x
     outputs:
+      - position_right
+      - position_left
       - joystick_y
       - button_x
