@@ -15,8 +15,8 @@
 # Teleoperation and data collection. The leader and the robot are modules
 # picked by environment variables:
 #
-#   LEADER=ker|vr|webxr|dummy   leader-$LEADER.yaml   (default: dummy)
-#   ROBOT=cell|mujoco|dummy     robot-$ROBOT.yaml     (default: dummy)
+#   LEADER=ker|vr|webxr|dummy          leader-$LEADER.yaml   (default: dummy)
+#   ROBOT=cell|pedestal|mujoco|dummy   robot-$ROBOT.yaml     (default: dummy)
 #
 # dora doesn't expand environment variables in `module:`, so run it through
 # scripts/dora-envsubst, which does:

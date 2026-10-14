@@ -56,7 +56,7 @@ are modules next to it picked by environment variables:
 | Variable | Values | Picks | Default |
 |---|---|---|---|
 | `LEADER` | `ker`, `vr`, `webxr`, `dummy` | `leader-$LEADER.yaml` | `dummy` |
-| `ROBOT` | `cell` (real Cell), `mujoco`, `dummy` | `robot-$ROBOT.yaml` | `dummy` |
+| `ROBOT` | `cell` (real Cell), `pedestal`, `mujoco`, `dummy` | `robot-$ROBOT.yaml` | `dummy` |
 
 dora doesn't expand environment variables in `module:` paths
 ([dora-rs/dora#3805](https://github.com/dora-rs/dora/issues/3805)), so run the
@@ -72,7 +72,8 @@ LEADER=ker ROBOT=cell scripts/dora-envsubst run dataflow.yaml --uv
 Only the selected leader and robot are in the dataflow, so the others open no
 device or port. All leader modules have the same inputs and outputs, and so do
 all robot modules; outputs a module doesn't have are declared but never sent.
-`LEADER=dummy` with `ROBOT=cell` moves the real arms with generated motion.
+`LEADER=dummy` with `ROBOT=cell` or `ROBOT=pedestal` moves the real arms with
+generated motion.
 
 The UI and the recorder use `metadata_$ROBOT.yaml`, and datasets are recorded
 under `data/$LEADER-$ROBOT/`, e.g. `data/webxr-mujoco/`:
@@ -80,15 +81,9 @@ under `data/$LEADER-$ROBOT/`, e.g. `data/webxr-mujoco/`:
 | Robot | Metadata | Recorded equipment |
 |---|---|---|
 | `cell` | [`metadata_cell.yaml`](metadata_cell.yaml) | Arms, lifter, five cameras |
+| `pedestal` | [`metadata_pedestal.yaml`](metadata_pedestal.yaml) | Arms only |
 | `mujoco` | [`metadata_mujoco.yaml`](metadata_mujoco.yaml) | Arms, five simulated cameras |
 | `dummy` | [`metadata_dummy.yaml`](metadata_dummy.yaml) | Arms, five dummy cameras |
-
-Known gaps compared with the previous separate dataflows:
-
-- There is no pedestal robot yet. [`metadata_pedestal.yaml`](metadata_pedestal.yaml)
-  is kept for it.
-- The MuJoCo node runs without `--debug-frames` and the `pose_right`/`pose_left` inputs.
-- `ROBOT=cell` has no MuJoCo viewer that mirrors the real arms.
 
 ### KER leader
 
@@ -133,6 +128,11 @@ The Cell lifter receives the shared 250 Hz tick and records its elevation action
 and observation in millimeters. It uses its built-in startup calibration and hold
 behavior, and the left joystick of a VR leader moves it. A real lifter is
 required on `can2` by default, and startup enables and moves it for calibration.
+
+### Pedestal robot
+
+`ROBOT=pedestal` uses real OpenArm units on a pedestal over CAN. It has no
+lifter and no cameras. The followers use the `openarm_pedestal` configuration.
 
 ### MuJoCo robot
 
