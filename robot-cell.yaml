@@ -52,11 +52,9 @@ module:
     - elevation_action
     - elevation_observation
 
-# Inner `path:` starts with `../` because dora resolves it relative to this
-# file; a bare executable name would become `modules/<name>`.
 nodes:
   - id: right
-    path: ../dora-openarm
+    path: dora-openarm
     args: "--side right --align-trigger gripper --config openarm_cell_higher_pd_zero_offset"
     inputs:
       # Event ID is only used. Event value isn't used.
@@ -68,7 +66,7 @@ nodes:
       - status
 
   - id: left
-    path: ../dora-openarm
+    path: dora-openarm
     args: "--side left --align-trigger gripper --config openarm_cell_higher_pd_zero_offset"
     inputs:
       request_state: _mod/position_left
@@ -81,7 +79,7 @@ nodes:
   # Both followers send `state`/`status` but a module output must have one
   # producer with the same name, so forward them with the common names.
   - id: arms
-    path: ../dora-openarm-quitter
+    path: dora-openarm-quitter
     inputs:
       state_right: right/state
       state_left: left/state
@@ -98,7 +96,7 @@ nodes:
       - status_left
 
   - id: lifter
-    path: ../dora-openarm-cell-lifter
+    path: dora-openarm-cell-lifter
     inputs:
       # The tick keeps the built-in hold behavior; the joystick comes only
       # from a VR leader.
@@ -109,7 +107,7 @@ nodes:
       - elevation_action
 
   - id: wrist-right
-    path: ../opencv-video-capture
+    path: opencv-video-capture
     env:
       # Please configure!
       CAPTURE_PATH: "/dev/camera_wrist_right"
@@ -123,7 +121,7 @@ nodes:
       - image
 
   - id: wrist-left
-    path: ../opencv-video-capture
+    path: opencv-video-capture
     env:
       # Please configure!
       CAPTURE_PATH: "/dev/camera_wrist_left"
@@ -137,7 +135,7 @@ nodes:
       - image
 
   - id: head-stereo
-    path: ../opencv-video-capture
+    path: opencv-video-capture
     env:
       # Please configure!
       # Stereo camera: left and right images placed side by side in one frame.
@@ -151,7 +149,7 @@ nodes:
       - image
 
   - id: head-stereo-splitter
-    path: ../dora-opencv-image-splitter
+    path: dora-opencv-image-splitter
     env:
       SPLIT_MODE: "vertical"
       NUM_SPLITS: 2
@@ -165,7 +163,7 @@ nodes:
       - image_1
 
   - id: ceiling
-    path: ../opencv-video-capture
+    path: opencv-video-capture
     env:
       # Please configure!
       CAPTURE_PATH: "/dev/camera_ceiling"
@@ -180,7 +178,7 @@ nodes:
 
   # Every camera sends `image`, so forward them with the common names.
   - id: cameras
-    path: ../dora-openarm-quitter
+    path: dora-openarm-quitter
     inputs:
       camera_wrist_right: wrist-right/image
       camera_wrist_left: wrist-left/image

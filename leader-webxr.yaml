@@ -29,12 +29,10 @@ module:
     - ker_position
     - metadata
 
-# Inner `path:` starts with `../` because dora resolves it relative to this
-# file; a bare executable name would become `modules/<name>`.
 # Env paths are not rewritten: nodes run in the dataflow's directory.
 nodes:
   - id: webxr
-    path: ../dora-openarm-webxr
+    path: dora-openarm-webxr
     env:
       TLS_CERTIFICATE_FILE: "nodes/dora-openarm-webxr/example/server.crt"
       TLS_KEY_FILE: "nodes/dora-openarm-webxr/example/server.key"
@@ -64,7 +62,7 @@ nodes:
   # Closes the pose inputs of IK on Quit, and renames the IK outputs to the
   # common `follower_position_*`: a module output keeps its inner name.
   - id: quit
-    path: ../dora-openarm-quitter
+    path: dora-openarm-quitter
     inputs:
       command: _mod/command
       pose_right: webxr/pose_right
@@ -85,7 +83,7 @@ nodes:
       - metadata
 
   - id: ik
-    path: ../dora-openarm-ik
+    path: dora-openarm-ik
     args: >-
       --mode bimanual --tick-hz 250
       --max-iters 5 --damping 0.1

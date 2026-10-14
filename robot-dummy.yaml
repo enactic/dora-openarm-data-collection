@@ -40,11 +40,9 @@ module:
     - elevation_action
     - elevation_observation
 
-# Inner `path:` starts with `../` because dora resolves it relative to this
-# file; a bare executable name would become `modules/<name>`.
 nodes:
   - id: right
-    path: ../dora-openarm-dummy
+    path: dora-openarm-dummy
     inputs:
       # Event ID is only used. Event value isn't used.
       request_position: _mod/position_right
@@ -54,7 +52,7 @@ nodes:
       - status
 
   - id: left
-    path: ../dora-openarm-dummy
+    path: dora-openarm-dummy
     inputs:
       request_position: _mod/position_left
       move_position: _mod/position_left
@@ -65,7 +63,7 @@ nodes:
   # Both arms send `position`/`status` but a module output must have one
   # producer with the same name, so forward them with the common names.
   - id: arms
-    path: ../dora-openarm-quitter
+    path: dora-openarm-quitter
     inputs:
       state_right: right/position
       state_left: left/position
@@ -83,7 +81,7 @@ nodes:
       - elevation_observation
 
   - id: wrist-right
-    path: ../dora-openarm-dummy-camera
+    path: dora-openarm-dummy-camera
     env: &dummy_camera_env
       ENCODING: "jpeg"
       IMAGE_HEIGHT: 600
@@ -95,7 +93,7 @@ nodes:
       - image
 
   - id: wrist-left
-    path: ../dora-openarm-dummy-camera
+    path: dora-openarm-dummy-camera
     env: *dummy_camera_env
     inputs:
       tick: _mod/camera_tick
@@ -103,7 +101,7 @@ nodes:
       - image
 
   - id: head-left
-    path: ../dora-openarm-dummy-camera
+    path: dora-openarm-dummy-camera
     env: *dummy_camera_env
     inputs:
       tick: _mod/camera_tick
@@ -111,7 +109,7 @@ nodes:
       - image
 
   - id: head-right
-    path: ../dora-openarm-dummy-camera
+    path: dora-openarm-dummy-camera
     env: *dummy_camera_env
     inputs:
       tick: _mod/camera_tick
@@ -119,7 +117,7 @@ nodes:
       - image
 
   - id: ceiling
-    path: ../dora-openarm-dummy-camera
+    path: dora-openarm-dummy-camera
     env: *dummy_camera_env
     inputs:
       tick: _mod/camera_tick
@@ -128,7 +126,7 @@ nodes:
 
   # Every camera sends `image`, so forward them with the common names.
   - id: cameras
-    path: ../dora-openarm-quitter
+    path: dora-openarm-quitter
     inputs:
       camera_wrist_right: wrist-right/image
       camera_wrist_left: wrist-left/image

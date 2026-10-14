@@ -15,8 +15,8 @@
 # Teleoperation and data collection. The leader and the robot are modules
 # picked by environment variables:
 #
-#   LEADER=ker|vr|webxr|dummy   modules/leader-$LEADER.yaml   (default: ker)
-#   ROBOT=cell|mujoco|dummy     modules/robot-$ROBOT.yaml     (default: dummy)
+#   LEADER=ker|vr|webxr|dummy   leader-$LEADER.yaml   (default: ker)
+#   ROBOT=cell|mujoco|dummy     robot-$ROBOT.yaml     (default: dummy)
 #
 # dora doesn't expand environment variables in `module:`, so run it through
 # scripts/dora-envsubst, which does:
@@ -24,7 +24,11 @@
 #   LEADER=webxr ROBOT=mujoco scripts/dora-envsubst run dataflow.yaml --uv
 #
 # All leader modules have the same inputs and outputs, and so do all robot
-# modules; see modules/leader-ker.yaml and modules/robot-cell.yaml.
+# modules; see leader-ker.yaml and robot-cell.yaml.
+#
+# The modules are next to this file because dora resolves `path:` in a module
+# relative to the module file: `path: dora-openarm` in modules/x.yaml would
+# become modules/dora-openarm and wouldn't be found in PATH.
 
 nodes:
   - id: ui
@@ -89,13 +93,13 @@ nodes:
       - tick
 
   - id: leader
-    module: modules/leader-${LEADER:-ker}.yaml
+    module: leader-${LEADER:-ker}.yaml
     inputs:
       tick: quittable-tick-leader/tick
       command: ui/command
 
   - id: robot
-    module: modules/robot-${ROBOT:-dummy}.yaml
+    module: robot-${ROBOT:-dummy}.yaml
     inputs:
       tick: quittable-tick-leader/tick
       camera_tick: quittable-tick-camera/tick

@@ -29,11 +29,9 @@ module:
     - ker_position
     - metadata
 
-# Inner `path:` starts with `../` because dora resolves it relative to this
-# file; a bare executable name would become `modules/<name>`.
 nodes:
   - id: udp-receiver
-    path: ../dora-openarm-quest-receiver
+    path: dora-openarm-quest-receiver
     args: "--host 0.0.0.0 --port 5006"
     inputs:
       tick: _mod/tick
@@ -50,7 +48,7 @@ nodes:
       - vr_receive_times
 
   - id: ik
-    path: ../dora-openarm-ik
+    path: dora-openarm-ik
     args: >-
       --mode bimanual --tick-hz 250
       --max-iters 5 --damping 0.1
@@ -68,7 +66,7 @@ nodes:
   # A module output keeps its inner name, so rename the IK outputs to the
   # common `follower_position_*`.
   - id: out
-    path: ../dora-openarm-quitter
+    path: dora-openarm-quitter
     inputs:
       command: _mod/command
       follower_position_right: ik/position_right

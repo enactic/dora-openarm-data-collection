@@ -39,11 +39,9 @@ module:
     - elevation_action
     - elevation_observation
 
-# Inner `path:` starts with `../` because dora resolves it relative to this
-# file; a bare executable name would become `modules/<name>`.
 nodes:
   - id: mujoco
-    path: ../dora-openarm-mujoco
+    path: dora-openarm-mujoco
     args: "--scene demo --keyframe home --enable-collision --ctrl --viewer --render"
     inputs:
       move_position_right: _mod/position_right

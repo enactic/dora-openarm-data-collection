@@ -52,12 +52,12 @@ See [uv's synchronization rules](https://docs.astral.sh/uv/concepts/projects/syn
 ## Configurations
 
 [`dataflow.yaml`](dataflow.yaml) is the only dataflow. The leader and the robot
-are modules under [`modules/`](modules) picked by environment variables:
+are modules next to it picked by environment variables:
 
 | Variable | Values | Picks | Default |
 |---|---|---|---|
-| `LEADER` | `ker`, `vr`, `webxr`, `dummy` | `modules/leader-$LEADER.yaml` | `ker` |
-| `ROBOT` | `cell` (real Cell), `mujoco`, `dummy` | `modules/robot-$ROBOT.yaml` | `dummy` |
+| `LEADER` | `ker`, `vr`, `webxr`, `dummy` | `leader-$LEADER.yaml` | `ker` |
+| `ROBOT` | `cell` (real Cell), `mujoco`, `dummy` | `robot-$ROBOT.yaml` | `dummy` |
 
 dora doesn't expand environment variables in `module:` paths
 ([dora-rs/dora#3805](https://github.com/dora-rs/dora/issues/3805)), so run the
