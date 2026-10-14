@@ -95,18 +95,23 @@ Open http://localhost:8000/ on the local machine for the data collection UI, and
 
 The dataflows under [`dataflow/`](dataflow) merge the KER, VR, WebXR and dummy configurations. There is one dataflow per robot, and the leader is a module under [`dataflow/modules/`](dataflow/modules) picked by an environment variable:
 
+| Robot | Dataflow |
+|---|---|
+| `cell` (real Cell) | `dataflow/robot-cell.yaml` |
+| `mujoco` | `dataflow/robot-mujoco.yaml` |
+| `dummy` | `dataflow/robot-dummy.yaml` |
+
 | Variable | Values | Picks | Default |
 |---|---|---|---|
-| `ROBOT` | `cell` (real Cell), `mujoco`, `dummy` | `dataflow/robot-$ROBOT.yaml` | `cell` |
 | `LEADER` | `ker`, `vr`, `webxr`, `dummy` | `dataflow/modules/leader-$LEADER.yaml` | `ker` |
 
-dora doesn't expand environment variables in `module:` paths, so run them through [`scripts/dora-switch.sh`](scripts/dora-switch.sh). It writes the expanded file next to the robot dataflow and runs the given dora command on it:
+dora doesn't expand environment variables in `module:` paths ([dora-rs/dora#3805](https://github.com/dora-rs/dora/issues/3805)), so run them through [`scripts/dora-envsubst`](scripts/dora-envsubst). It expands `$VAR`, `${VAR}` and `${VAR:-default}` in `module:` paths, writes the result to `<name>.envsubst.yaml` next to the given dataflow and runs the given dora command on it:
 
 ```bash
-LEADER=webxr ROBOT=mujoco scripts/dora-switch.sh run --uv
+LEADER=webxr scripts/dora-envsubst run dataflow/robot-mujoco.yaml --uv
 ```
 
-Only the selected leader is in the dataflow, so the other leaders open no device or port, and `LEADER=dummy ROBOT=dummy` needs no hardware. All leader modules have the same inputs and outputs; outputs a leader doesn't have are declared but never sent. The robots' followers and cameras are modules too ([`followers.yaml`](dataflow/modules/followers.yaml), [`cameras.yaml`](dataflow/modules/cameras.yaml) and their `dummy-` versions). Each robot dataflow uses its metadata file as the default `METADATA_FILE`. `scripts/dora-switch.sh` refuses `LEADER=dummy ROBOT=cell`, so generated motion never moves the real arms. Datasets are recorded under `data/<LEADER>-<ROBOT>/`. The pedestal configuration isn't merged because its followers use another `--config` on the same CAN buses.
+Only the selected leader is in the dataflow, so the other leaders open no device or port, and `LEADER=dummy` with `dataflow/robot-dummy.yaml` needs no hardware. All leader modules have the same inputs and outputs; outputs a leader doesn't have are declared but never sent. The robots' followers and cameras are modules too ([`followers.yaml`](dataflow/modules/followers.yaml), [`cameras.yaml`](dataflow/modules/cameras.yaml) and their `dummy-` versions). Each robot dataflow uses its metadata file as the default `METADATA_FILE`. Datasets are recorded under `data/<LEADER>-<ROBOT>/`, e.g. `data/webxr-mujoco/`. The pedestal configuration isn't merged because its followers use another `--config` on the same CAN buses.
 
 Known gaps compared with the separate dataflows:
 

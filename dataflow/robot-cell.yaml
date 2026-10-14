@@ -20,9 +20,9 @@
 #   LEADER=ker|vr|webxr|dummy   modules/leader-$LEADER.yaml   (default: ker)
 #
 # dora doesn't expand environment variables in `module:`, so run it through
-# ../scripts/dora-switch.sh, which does and also picks this file by ROBOT:
+# scripts/dora-envsubst, which does:
 #
-#   LEADER=webxr ROBOT=cell ../scripts/dora-switch.sh run --uv
+#   LEADER=webxr scripts/dora-envsubst run dataflow/robot-cell.yaml --uv
 #
 # All leader modules have the same inputs and outputs; see
 # modules/leader-ker.yaml.
