@@ -12,12 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-dataset/
 /out/
 /*-graph.html
 /data/
 /.venv/
+# MuJoCo writes its warnings here.
+/MUJOCO_LOG.TXT
 *.txt
-*.egg-info/
-.pytest_cache/
 *.envsubst.yaml
