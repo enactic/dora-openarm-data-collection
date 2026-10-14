@@ -15,11 +15,17 @@
 # LEADER=ker: KER leader arms over USB send joint positions directly.
 #
 # Every leader-*.yaml declares the same inputs and outputs so that
-# dataflow.yaml can wire whichever one LEADER picks. Outputs that this
-# leader doesn't have are declared on a node that never sends them.
+# dataflow.yaml can wire whichever one LEADER picks. Inputs that this
+# leader doesn't use are ignored, and outputs that it doesn't have are
+# declared on a node that never sends them.
 module:
   name: leader-ker
-  inputs: [tick, command]
+  inputs:
+    - tick
+    - command
+    # Head camera images for a leader that shows them to the operator.
+    - camera_head_left
+    - camera_head_right
   outputs:
     - follower_position_right
     - follower_position_left

@@ -17,7 +17,7 @@
 # See leader-ker.yaml for the common inputs and outputs.
 module:
   name: leader-webxr
-  inputs: [tick, command]
+  inputs: [tick, command, camera_head_left, camera_head_right]
   outputs:
     - follower_position_right
     - follower_position_left
@@ -38,8 +38,15 @@ nodes:
       TLS_KEY_FILE: "nodes/dora-openarm-webxr/example/server.key"
       VIEW_CONFIGURATION_FILE: "view-webxr.yaml"
     inputs:
-      # Closing this input on Quit lets the WebXR server and peers shut down.
+      # Closing these inputs on Quit lets the WebXR server and peers shut down.
       tick: _mod/tick
+      # The head camera view in the headset; see view-webxr.yaml.
+      camera_head_left:
+        source: cameras/camera_head_left
+        queue_size: 1
+      camera_head_right:
+        source: cameras/camera_head_right
+        queue_size: 1
     outputs:
       - pose_right
       - trigger_right
@@ -58,6 +65,23 @@ nodes:
       - status
       - vr_receive_times
       - pose_reference
+
+  # Closes the camera inputs of WebXR on Quit: the cameras may depend on
+  # WebXR, e.g. MuJoCo renders them from the poses. Separate from `quit` so
+  # that images don't delay poses.
+  - id: cameras
+    path: dora-openarm-quitter
+    inputs:
+      command: _mod/command
+      camera_head_left:
+        source: _mod/camera_head_left
+        queue_size: 1
+      camera_head_right:
+        source: _mod/camera_head_right
+        queue_size: 1
+    outputs:
+      - camera_head_left
+      - camera_head_right
 
   # Closes the pose inputs of IK on Quit, and renames the IK outputs to the
   # common `follower_position_*`: a module output keeps its inner name.

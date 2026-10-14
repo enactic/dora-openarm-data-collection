@@ -87,7 +87,6 @@ Known gaps compared with the previous separate dataflows:
 
 - There is no pedestal robot yet. [`metadata_pedestal.yaml`](metadata_pedestal.yaml)
   is kept for it.
-- The WebXR headset gets no head camera view.
 - The MuJoCo node runs without `--debug-frames` and the `pose_right`/`pose_left` inputs.
 - `ROBOT=cell` has no MuJoCo viewer that mirrors the real arms.
 

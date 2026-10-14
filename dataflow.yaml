@@ -97,6 +97,8 @@ nodes:
     inputs:
       tick: quittable-tick-leader/tick
       command: ui/command
+      camera_head_left: robot/camera_head_left
+      camera_head_right: robot/camera_head_right
 
   - id: robot
     module: robot-${ROBOT:-dummy}.yaml

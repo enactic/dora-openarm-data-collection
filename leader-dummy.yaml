@@ -16,7 +16,7 @@
 # See leader-ker.yaml for the common inputs and outputs.
 module:
   name: leader-dummy
-  inputs: [tick, command]
+  inputs: [tick, command, camera_head_left, camera_head_right]
   outputs:
     - follower_position_right
     - follower_position_left
