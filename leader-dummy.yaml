@@ -29,7 +29,7 @@ module:
     - metadata
 
 nodes:
-  - id: ker
+  - id: dummy-ker
     path: dora-openarm-dummy-ker
     inputs:
       tick: _mod/tick
