@@ -18,6 +18,7 @@ version = "0.1.0"
 requires-python = "==3.12.*"
 dependencies = [
     "dora-rs-cli==1.0.1",
+    "dora-echo",
     "dora-openarm",
     "dora-openarm-cell-lifter",
     "dora-openarm-data-collection-ui",
@@ -40,6 +41,10 @@ dependencies = [
 package = false
 
 [tool.uv.sources]
+# Use https://github.com/dora-rs/dora-hub/pull/93 until it is released: the
+# released dora-echo requires numpy<2.0.0, which conflicts with the other
+# dependencies.
+dora-echo = { git = "https://github.com/kou/dora-hub.git", rev = "ec96c7feeb7e531c18f24b2ee78fbf64545889b8", subdirectory = "node-hub/dora-echo" }
 dora-openarm = { path = "nodes/dora-openarm", editable = true }
 dora-openarm-cell-lifter = { path = "nodes/dora-openarm-cell-lifter", editable = true }
 dora-openarm-data-collection-ui = { path = "nodes/dora-openarm-data-collection-ui", editable = true }
