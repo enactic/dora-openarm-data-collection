@@ -105,7 +105,8 @@ nodes:
     inputs:
       tick: quittable-tick-leader/tick
       camera_tick: quittable-tick-camera/tick
-      command: ui/arm_command
+      command: ui/command
+      arm_command: ui/arm_command
       position_right: leader/follower_position_right
       position_left: leader/follower_position_left
       joystick_y: leader/joystick_y_left

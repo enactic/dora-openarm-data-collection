@@ -20,6 +20,7 @@ module:
     - tick
     - camera_tick
     - command
+    - arm_command
     - position_right
     - position_left
     - joystick_y
@@ -47,8 +48,8 @@ nodes:
       move_position_right: _mod/position_right
       move_position_left: _mod/position_left
       request_state: _mod/tick
-      joystick_y: _mod/joystick_y
-      button_x: _mod/button_x
+      joystick_y: controls/joystick_y
+      button_x: controls/button_x
     outputs:
       - status
       - state_right
@@ -65,3 +66,17 @@ nodes:
       - status_left
       - elevation_action
       - elevation_observation
+
+  # The cameras are rendered from the leader's targets, and a leader may wait
+  # for the cameras, e.g. WebXR. Close the controls that come directly from
+  # the leader on Quit so that MuJoCo stops and closes the cameras. The
+  # targets and the tick are closed by their sources.
+  - id: controls
+    path: dora-openarm-quitter
+    inputs:
+      command: _mod/command
+      joystick_y: _mod/joystick_y
+      button_x: _mod/button_x
+    outputs:
+      - joystick_y
+      - button_x
