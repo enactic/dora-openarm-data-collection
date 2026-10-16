@@ -45,11 +45,11 @@ nodes:
     path: dora-openarm-mujoco
     args: "--scene demo --keyframe home --enable-collision --ctrl --viewer --render"
     inputs:
-      move_position_right: controls/position_right
-      move_position_left: controls/position_left
+      move_position_right: quittable-controls/position_right
+      move_position_left: quittable-controls/position_left
       request_state: _mod/tick
-      joystick_y: controls/joystick_y
-      button_x: controls/button_x
+      joystick_y: quittable-controls/joystick_y
+      button_x: quittable-controls/button_x
     outputs:
       - status
       - state_right
@@ -70,7 +70,7 @@ nodes:
   # The cameras are rendered from the leader's inputs, and a leader may wait
   # for the cameras, e.g. WebXR. Close all inputs from the leader on Quit so
   # that MuJoCo stops and closes the cameras whichever leader is used.
-  - id: controls
+  - id: quittable-controls
     path: dora-openarm-quitter
     inputs:
       command: _mod/command
