@@ -20,6 +20,8 @@ module:
   outputs:
     - follower_position_right
     - follower_position_left
+    - pose_right
+    - pose_left
     - joystick_y_left
     - button_a
     - button_b
@@ -42,6 +44,8 @@ nodes:
       - joystick_y
       - joystick_button
       # Not sent by the dummy leader.
+      - pose_right
+      - pose_left
       - joystick_y_left
       - button_a
       - button_b

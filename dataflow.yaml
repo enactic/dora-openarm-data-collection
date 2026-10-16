@@ -111,6 +111,8 @@ nodes:
       position_left: leader/follower_position_left
       joystick_y: leader/joystick_y_left
       button_x: leader/button_x
+      pose_right: leader/pose_right
+      pose_left: leader/pose_left
 
   - id: recorder
     path: dora-openarm-dataset-recorder

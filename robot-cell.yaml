@@ -36,6 +36,9 @@ module:
     # Lifter controls of a VR leader.
     - joystick_y
     - button_x
+    # VR controller poses for the MuJoCo --debug-frames overlay.
+    - pose_right
+    - pose_left
   outputs:
     # Observation to record.
     - state_right

@@ -29,6 +29,9 @@ module:
   outputs:
     - follower_position_right
     - follower_position_left
+    # VR controller poses for a robot that draws them.
+    - pose_right
+    - pose_left
     - joystick_y_left
     - button_a
     - button_b
@@ -47,6 +50,8 @@ nodes:
       - follower_position_right
       - metadata
       # Not sent by KER.
+      - pose_right
+      - pose_left
       - joystick_y_left
       - button_a
       - button_b

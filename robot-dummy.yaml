@@ -26,6 +26,8 @@ module:
     - position_left
     - joystick_y
     - button_x
+    - pose_right
+    - pose_left
   outputs:
     - state_right
     - state_left

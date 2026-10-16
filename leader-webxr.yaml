@@ -21,6 +21,8 @@ module:
   outputs:
     - follower_position_right
     - follower_position_left
+    - pose_right
+    - pose_left
     - joystick_y_left
     - button_a
     - button_b
@@ -76,16 +78,18 @@ nodes:
     path: dora-openarm-quitter
     inputs:
       command: _mod/command
-      pose_right: webxr/pose_right
+      target_right: webxr/pose_right
       trigger_right: webxr/trigger_right
-      pose_left: webxr/pose_left
+      target_left: webxr/pose_left
       trigger_left: webxr/trigger_left
       follower_position_right: ik/position_right
       follower_position_left: ik/position_left
     outputs:
-      - pose_right
+      # Not pose_*: webxr sends the module outputs with the names, and a
+      # module output must have one producer.
+      - target_right
       - trigger_right
-      - pose_left
+      - target_left
       - trigger_left
       - follower_position_right
       - follower_position_left
@@ -100,8 +104,8 @@ nodes:
       --max-iters 5 --damping 0.1
       --posture-cost 0 --lm-damping 0.01 --limit-velocity
     inputs:
-      target_right: quittable-ik/pose_right
-      target_left: quittable-ik/pose_left
+      target_right: quittable-ik/target_right
+      target_left: quittable-ik/target_left
       trigger_right: quittable-ik/trigger_right
       trigger_left: quittable-ik/trigger_left
     outputs:
