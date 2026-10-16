@@ -17,7 +17,10 @@
 # See leader-ker.yaml for the common inputs and outputs.
 module:
   name: leader-webxr
-  inputs: [tick, camera_head_left, camera_head_right]
+  inputs:
+    - tick
+    - camera_head_left
+    - camera_head_right
   outputs:
     - follower_position_right
     - follower_position_left
@@ -81,8 +84,8 @@ nodes:
       trigger_right: webxr/trigger_right
       trigger_left: webxr/trigger_left
     outputs:
-      - position_left
       - position_right
+      - position_left
       - status
 
   # A module output keeps its inner name, so rename the IK outputs to the

@@ -128,7 +128,7 @@ nodes:
       - image
 
   # Every camera sends `image`, so forward them with the common names.
-  # The cameras stop when camera_tick is closed on Quit, so these close
+  # The cameras stop when `camera_tick` is closed on Quit, so these close
   # too, and a leader that waits for them, e.g. WebXR, can stop.
   - id: cameras
     path: dora-echo

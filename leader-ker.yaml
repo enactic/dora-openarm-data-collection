@@ -45,8 +45,8 @@ nodes:
     inputs:
       tick: _mod/tick
     outputs:
-      - follower_position_left
       - follower_position_right
+      - follower_position_left
       - metadata
       # Not sent by KER.
       - pose_right
@@ -59,7 +59,7 @@ nodes:
 
   # The UI shows the KER panel once `ker_position` arrives, so only this
   # leader sends it. A module output keeps its inner name, hence the rename.
-  - id: ui-rate
+  - id: out
     path: dora-echo
     inputs:
       ker_position: ker/follower_position_right

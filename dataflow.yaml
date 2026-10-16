@@ -89,7 +89,8 @@ nodes:
     path: dora-openarm-quitter
     inputs:
       command: ui/command
-      tick: dora/timer/millis/33 # 30fps
+      # 30fps
+      tick: dora/timer/millis/33
     outputs:
       - tick
 
