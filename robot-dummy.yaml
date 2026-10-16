@@ -128,12 +128,11 @@ nodes:
       - image
 
   # Every camera sends `image`, so forward them with the common names.
-  # Closing them on Quit lets a leader that consumes them, e.g. WebXR,
-  # stop.
-  - id: quittable-cameras
-    path: dora-openarm-quitter
+  # The cameras stop when camera_tick is closed on Quit, so these close
+  # too, and a leader that waits for them, e.g. WebXR, can stop.
+  - id: cameras
+    path: dora-echo
     inputs:
-      command: _mod/command
       camera_wrist_right: wrist-right/image
       camera_wrist_left: wrist-left/image
       camera_head_left: head-left/image
