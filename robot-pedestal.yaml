@@ -86,10 +86,19 @@ nodes:
       - status_right
       - status_left
       # Not sent by the pedestal.
+      - elevation_action
+      - elevation_observation
+
+  # The pedestal has no cameras. Close the camera outputs on Quit so that a
+  # leader that waits for them, e.g. WebXR, stops.
+  - id: quittable-cameras
+    path: dora-openarm-quitter
+    inputs:
+      command: _mod/command
+    outputs:
+      # Not sent by the pedestal.
       - camera_wrist_right
       - camera_wrist_left
       - camera_head_left
       - camera_head_right
       - camera_ceiling
-      - elevation_action
-      - elevation_observation

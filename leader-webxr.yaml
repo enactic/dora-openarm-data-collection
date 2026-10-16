@@ -69,34 +69,6 @@ nodes:
       - vr_receive_times
       - pose_reference
 
-  # Closes the pose inputs of IK on Quit, and renames the IK outputs to the
-  # common `follower_position_*`: a module output keeps its inner name.
-  # WebXR stops only after the robot closes the cameras, and some robots,
-  # e.g. the pedestal, close them only after their followers stop, so the
-  # follower targets must stop on Quit without waiting for WebXR.
-  - id: quittable-ik
-    path: dora-openarm-quitter
-    inputs:
-      command: _mod/command
-      target_right: webxr/pose_right
-      trigger_right: webxr/trigger_right
-      target_left: webxr/pose_left
-      trigger_left: webxr/trigger_left
-      follower_position_right: ik/position_right
-      follower_position_left: ik/position_left
-    outputs:
-      # Not pose_*: webxr sends the module outputs with the names, and a
-      # module output must have one producer.
-      - target_right
-      - trigger_right
-      - target_left
-      - trigger_left
-      - follower_position_right
-      - follower_position_left
-      # Not sent by WebXR.
-      - ker_position
-      - metadata
-
   - id: ik
     path: dora-openarm-ik
     args: >-
@@ -104,11 +76,25 @@ nodes:
       --max-iters 5 --damping 0.1
       --posture-cost 0 --lm-damping 0.01 --limit-velocity
     inputs:
-      target_right: quittable-ik/target_right
-      target_left: quittable-ik/target_left
-      trigger_right: quittable-ik/trigger_right
-      trigger_left: quittable-ik/trigger_left
+      target_right: webxr/pose_right
+      target_left: webxr/pose_left
+      trigger_right: webxr/trigger_right
+      trigger_left: webxr/trigger_left
     outputs:
       - position_left
       - position_right
       - status
+
+  # A module output keeps its inner name, so rename the IK outputs to the
+  # common `follower_position_*`.
+  - id: out
+    path: dora-echo
+    inputs:
+      follower_position_right: ik/position_right
+      follower_position_left: ik/position_left
+    outputs:
+      - follower_position_right
+      - follower_position_left
+      # Not sent by WebXR.
+      - ker_position
+      - metadata
