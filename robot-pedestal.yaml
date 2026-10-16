@@ -1,0 +1,103 @@
+# Copyright 2026 Enactic, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# ROBOT=pedestal: real arms on a pedestal. Followers on CAN only, no lifter
+# and no cameras.
+# See robot-cell.yaml for the common inputs and outputs.
+module:
+  name: robot-pedestal
+  inputs:
+    - tick
+    - camera_tick
+    - command
+    - arm_command
+    - position_right
+    - position_left
+    - joystick_y
+    - button_x
+    - pose_right
+    - pose_left
+  outputs:
+    - state_right
+    - state_left
+    - arm_state_right
+    - arm_state_left
+    - status_right
+    - status_left
+    - camera_wrist_right
+    - camera_wrist_left
+    - camera_head_left
+    - camera_head_right
+    - camera_ceiling
+    - elevation_action
+    - elevation_observation
+
+nodes:
+  - id: right
+    path: dora-openarm
+    args: "--side right --align-trigger gripper --config openarm_pedestal"
+    inputs:
+      # Event ID is only used. Event value isn't used.
+      request_state: _mod/position_right
+      move_position: _mod/position_right
+      command: _mod/arm_command
+    outputs:
+      - state
+      - status
+
+  - id: left
+    path: dora-openarm
+    args: "--side left --align-trigger gripper --config openarm_pedestal"
+    inputs:
+      request_state: _mod/position_left
+      move_position: _mod/position_left
+      command: _mod/arm_command
+    outputs:
+      - state
+      - status
+
+  # Renames the followers' outputs to the common names.
+  - id: arms
+    path: dora-echo
+    inputs:
+      state_right: right/state
+      state_left: left/state
+      arm_state_right: right/state
+      arm_state_left: left/state
+      status_right: right/status
+      status_left: left/status
+    outputs:
+      - state_right
+      - state_left
+      - arm_state_right
+      - arm_state_left
+      - status_right
+      - status_left
+      # Not sent by the pedestal.
+      - elevation_action
+      - elevation_observation
+
+  # No cameras. Closes the camera outputs on Quit for a leader that waits
+  # for them, e.g. WebXR.
+  - id: quittable-cameras
+    path: dora-openarm-quitter
+    inputs:
+      command: _mod/command
+    outputs:
+      # Not sent by the pedestal.
+      - camera_wrist_right
+      - camera_wrist_left
+      - camera_head_left
+      - camera_head_right
+      - camera_ceiling

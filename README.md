@@ -20,18 +20,19 @@ no `.python-version` file is required. Nodes under `nodes/` are installed editab
 so Python source edits take effect after restarting the node. The parent project
 manages the shared environment and is not installed as a Python package.
 
-Run the desired dataflow from the same activated shell. For example,
-to use WebXR with MuJoCo (no real arms required):
+Run the dataflow from the same activated shell. [`dataflow.yaml`](dataflow.yaml)
+picks the leader and the robot by the `LEADER` and `ROBOT` environment variables.
+For example, to use WebXR with MuJoCo (no real arms required):
 
 ```bash
 ./nodes/dora-openarm-webxr/example/prepare_tls.sh "$(hostname).local"
-dora run dataflow-webxr-mujoco.yaml --uv
+LEADER=webxr ROBOT=mujoco scripts/dora-envsubst run dataflow.yaml --uv
 ```
 
-See the WebXR section below for browser URLs and TLS details. Other dataflows
-use `dora run <dataflow>.yaml --uv`, with their own hardware prerequisites.
-The root dataflows have no package-installing `build` commands; `uv sync --locked`
-installs their dependencies, so a separate `dora build` step is not needed.
+See [Configurations](#configurations) for the other leaders and robots, and the
+WebXR section below for browser URLs and TLS details.
+The dataflow has no package-installing `build` commands; `uv sync --locked`
+installs its dependencies, so a separate `dora build` step is not needed.
 
 [`uv.lock`](uv.lock) locks the resolved dependency versions. Editable node source
 revisions are pinned by this repository's Git submodule commits; the lockfile
@@ -49,46 +50,95 @@ See [uv's synchronization rules](https://docs.astral.sh/uv/concepts/projects/syn
 
 ## Configurations
 
-Each dataflow uses the same metadata file for its UI and recorder:
+[`dataflow.yaml`](dataflow.yaml) is the only dataflow. The leader and the robot
+are modules next to it picked by environment variables:
 
-| Dataflows | Metadata | Recorded equipment |
+| Variable | Values | Picks | Default |
+|---|---|---|---|
+| `LEADER` | `ker`, `vr`, `webxr`, `dummy` | `leader-$LEADER.yaml` | `dummy` |
+| `ROBOT` | `cell` (real Cell), `pedestal`, `mujoco`, `dummy` | `robot-$ROBOT.yaml` | `dummy` |
+
+dora doesn't expand environment variables in `module:` paths
+([dora-rs/dora#3805](https://github.com/dora-rs/dora/issues/3805)), so run the
+dataflow through [`scripts/dora-envsubst`](scripts/dora-envsubst). It expands
+`$VAR`, `${VAR}` and `${VAR:-default}` in `module:` paths, writes the result to
+`<name>.envsubst.yaml` and runs the given dora command on it.
+
+Only the selected leader and robot are in the dataflow, so the others open no
+device or port. `LEADER=dummy` with `ROBOT=cell` or `ROBOT=pedestal` moves the
+real arms with generated motion. See [`docs/design.md`](docs/design.md) for how
+the modules are structured.
+
+The UI and the recorder use `metadata_$ROBOT.yaml`, and datasets are recorded
+under `data/$LEADER-$ROBOT/`, e.g. `data/webxr-mujoco/`:
+
+| Robot | Metadata | Recorded equipment |
 |---|---|---|
-| KER, VR, WebXR (real Cell) | [`metadata.yaml`](metadata.yaml) | Arms, lifter, five cameras |
-| VR/WebXR MuJoCo | [`metadata_mujoco.yaml`](metadata_mujoco.yaml) | Arms, five simulated cameras |
-| Pedestal | [`metadata_pedestal.yaml`](metadata_pedestal.yaml) | Arms only |
-| Dummy | [`metadata_dummy.yaml`](metadata_dummy.yaml) | Arms, four dummy cameras (`head` is a single stream) |
+| `cell` | [`metadata_cell.yaml`](metadata_cell.yaml) | Arms, lifter, five cameras |
+| `pedestal` | [`metadata_pedestal.yaml`](metadata_pedestal.yaml) | Arms only |
+| `mujoco` | [`metadata_mujoco.yaml`](metadata_mujoco.yaml) | Arms, five simulated cameras |
+| `dummy` | [`metadata_dummy.yaml`](metadata_dummy.yaml) | Arms, five dummy cameras |
 
-### KER configuration
+### KER leader
 
-[`dataflow-ker.yaml`](dataflow-ker.yaml) is a configuration for leader-follower teleoperation with real OpenArm units and cameras. A [KER](https://github.com/enactic/dora-openarm-ker) leader arm controls the follower arms while wrist, head and ceiling cameras are recorded.
+`LEADER=ker` uses a [KER](https://github.com/enactic/dora-openarm-ker) leader arm
+connected over USB. Its joint positions are sent to the follower arms directly.
 
-The Cell lifter receives the shared 250 Hz tick and records its elevation action
-and observation in millimeters. It uses its built-in startup calibration and hold
-behavior; this flow has no interactive lift control input. A real lifter is
-required on `can2` by default, and startup enables and moves it for calibration.
+### VR leader
 
-### VR configuration
+`LEADER=vr` receives VR controller poses over UDP by
+[dora-openarm-vr](https://github.com/enactic/dora-openarm-vr), converts them to
+joint positions by inverse kinematics
+([dora-openarm-kinematics](https://github.com/enactic/dora-openarm-kinematics))
+and sends them to the follower arms.
 
-[`dataflow-vr.yaml`](dataflow-vr.yaml) is a configuration for VR teleoperation with real OpenArm units and cameras. VR controller poses are received over UDP by [dora-openarm-vr](https://github.com/enactic/dora-openarm-vr), converted to joint positions by inverse kinematics ([dora-openarm-kinematics](https://github.com/enactic/dora-openarm-kinematics)) and sent to the follower arms.
+### WebXR leader
 
-[`dataflow-vr-mujoco.yaml`](dataflow-vr-mujoco.yaml) is the same VR teleoperation but with a MuJoCo simulation ([dora-openarm-mujoco](https://github.com/enactic/dora-openarm-mujoco)) instead of real OpenArm units and cameras. We can use this for testing VR teleoperation and data collection without real hardware.
-
-### WebXR configuration
-
-[`dataflow-webxr-mujoco.yaml`](dataflow-webxr-mujoco.yaml) is a configuration for WebXR teleoperation with a MuJoCo simulation. [dora-openarm-webxr](https://github.com/enactic/dora-openarm-webxr) starts a Web server and the Web browser on a VR device such as Meta Quest 3 or PICO 4 connects to it to stream controller poses. No native VR application is needed.
+`LEADER=webxr` uses [dora-openarm-webxr](https://github.com/enactic/dora-openarm-webxr).
+It starts a Web server and the Web browser on a VR device such as Meta Quest 3
+or PICO 4 connects to it to stream controller poses. No native VR application is
+needed.
 
 WebXR requires HTTPS, so a TLS certificate is needed. A self-signed certificate is enough; see the [dora-openarm-webxr setup instructions](https://github.com/enactic/dora-openarm-webxr#setup) for how to generate one. Then run:
 
 ```bash
 ./nodes/dora-openarm-webxr/example/prepare_tls.sh $(hostname).local
-dora run dataflow-webxr-mujoco.yaml --uv
+LEADER=webxr ROBOT=mujoco scripts/dora-envsubst run dataflow.yaml --uv
 ```
 
-Open http://localhost:8000/ on the local machine for the data collection UI, and open `https://${YOUR_HOST_NAME}:8443/` in the Web browser on your VR device (where `${HOSTNAME}` matches the value passed to `prepare_tls.sh`) to start teleoperation.
+Open http://localhost:8000/ on the local machine for the data collection UI, and open `https://<host name>:8443/` in the Web browser on your VR device (where `<host name>` is the value passed to `prepare_tls.sh`) to start teleoperation.
 
-### Dummy configuration
+### Dummy leader
 
-[`dataflow_dummy.yaml`](dataflow_dummy.yaml) is a configuration that doesn't use real OpenArm. We can use this for testing a dataflow without real OpenArm.
+`LEADER=dummy` generates leader motion without any device. With `ROBOT=dummy`,
+we can test the dataflow without any hardware.
+
+### Cell robot
+
+`ROBOT=cell` uses real OpenArm units on CAN, the Cell lifter and wrist, head and
+ceiling cameras.
+
+The Cell lifter receives the shared 250 Hz tick and records its elevation action
+and observation in millimeters. It uses its built-in startup calibration and hold
+behavior, and the left joystick of a VR leader moves it. A real lifter is
+required on `can2` by default, and startup enables and moves it for calibration.
+
+### Pedestal robot
+
+`ROBOT=pedestal` uses real OpenArm units on a pedestal over CAN. It has no
+lifter and no cameras. The followers use the `openarm_pedestal` configuration.
+
+### MuJoCo robot
+
+`ROBOT=mujoco` uses a MuJoCo simulation
+([dora-openarm-mujoco](https://github.com/enactic/dora-openarm-mujoco)) instead
+of real OpenArm units and cameras. We can use this for testing teleoperation and
+data collection without real hardware.
+
+### Dummy robot
+
+`ROBOT=dummy` doesn't use any hardware. The arms echo their targets and the
+cameras send test images.
 
 ## Debugging OpenArm libraries
 

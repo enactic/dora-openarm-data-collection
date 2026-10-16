@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # View and controller-pose settings read by the webxr node through
-# VIEW_CONFIGURATION_FILE in dataflow-webxr.yaml / dataflow-webxr-mujoco.yaml.
+# VIEW_CONFIGURATION_FILE in leader-webxr.yaml.
 # Read once at node startup; restart the dataflow after changing this file.
 # Reference: https://github.com/reazon-research/dora-openarm-data-collection-ops/blob/main/view-webxr.yaml
 

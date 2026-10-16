@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+#
+# Copyright 2026 Enactic, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Run a dora command with environment variables expanded in `module:` paths.
+
+dora expands environment variables in `env:` values but not in `module:`
+paths: https://github.com/dora-rs/dora/issues/3805 . This expands `$VAR`,
+`${VAR}` and `${VAR:-default}` in `module:` paths of the given dataflow,
+writes the result to `<name>.envsubst.yaml` next to it, so that relative
+paths and the nodes' working directory stay the same, and runs dora on it:
+
+    LEADER=webxr dora-envsubst run dataflow.yaml --uv
+
+The dataflow is the first argument after the dora command that names an
+existing `.yml`/`.yaml` file. Only the given dataflow is expanded, not
+module files that it references.
+
+Remove this once dora expands environment variables in `module:` paths.
+"""
+
+import os
+import re
+import sys
+from pathlib import Path
+
+MODULE_LINE = re.compile(r"^(\s*(?:-\s+)?module:\s*)(.*)$")
+VARIABLE = re.compile(r"\$(?:\{(\w+)(?::-([^}]*))?\}|(\w+))")
+
+
+def expand_variable(match: re.Match) -> str:
+    """Expand one `$VAR`, `${VAR}` or `${VAR:-default}`."""
+    name = match.group(1) or match.group(3)
+    default = match.group(2)
+    value = os.environ.get(name, "")
+    if value:
+        return value
+    if default is not None:
+        return default
+    raise SystemExit(f"dora-envsubst: environment variable {name} isn't set")
+
+
+def expand(text: str) -> str:
+    """Expand environment variables in `module:` lines of a dataflow."""
+    lines = []
+    for line in text.splitlines(keepends=True):
+        match = MODULE_LINE.match(line)
+        if match:
+            prefix, value = match.groups()
+            line = prefix + VARIABLE.sub(expand_variable, value) + line[match.end() :]
+        lines.append(line)
+    return "".join(lines)
+
+
+def find_dataflow(args: list[str]) -> int:
+    """Return the index of the dataflow file in dora's arguments."""
+    for i, arg in enumerate(args[1:], start=1):
+        path = Path(arg)
+        if path.suffix in (".yml", ".yaml") and path.is_file():
+            return i
+    raise SystemExit("dora-envsubst: no dataflow .yml/.yaml file is given")
+
+
+def main() -> None:
+    """Expand the dataflow and replace this process with dora."""
+    args = sys.argv[1:]
+    if not args:
+        print(
+            "Usage: dora-envsubst <dora command> <dataflow.yaml> [args...]",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    index = find_dataflow(args)
+    dataflow = Path(args[index])
+    expanded = dataflow.with_name(f"{dataflow.stem}.envsubst{dataflow.suffix}")
+    expanded.write_text(expand(dataflow.read_text()))
+    args[index] = str(expanded)
+    os.execvp("dora", ["dora", *args])
+
+
+if __name__ == "__main__":
+    main()
