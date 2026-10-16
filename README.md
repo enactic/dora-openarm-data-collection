@@ -72,6 +72,8 @@ LEADER=ker ROBOT=cell scripts/dora-envsubst run dataflow.yaml --uv
 Only the selected leader and robot are in the dataflow, so the others open no
 device or port. All leader modules have the same inputs and outputs, and so do
 all robot modules; outputs a module doesn't have are declared but never sent.
+See [`docs/design.md`](docs/design.md) for how the modules are structured and
+how they stop on Quit.
 `LEADER=dummy` with `ROBOT=cell` or `ROBOT=pedestal` moves the real arms with
 generated motion.
 
