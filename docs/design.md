@@ -97,7 +97,8 @@ uses, e.g. the followers of the Cell, doesn't need a quitter: it stops after the
 leader stops.
 
 The leader's nodes stop when `_mod/tick` is closed and the robot closes its
-outputs on Quit. So a leader doesn't need its own quitter for Quit.
+outputs on Quit. So a leader doesn't need its own quitter or `quit` for Quit,
+and the leader modules have no `command` input.
 
 ### Naming
 

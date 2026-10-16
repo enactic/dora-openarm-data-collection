@@ -17,7 +17,7 @@
 # See leader-ker.yaml for the common inputs and outputs.
 module:
   name: leader-vr
-  inputs: [tick, command, camera_head_left, camera_head_right]
+  inputs: [tick, camera_head_left, camera_head_right]
   outputs:
     - follower_position_right
     - follower_position_left

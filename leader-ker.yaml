@@ -22,7 +22,6 @@ module:
   name: leader-ker
   inputs:
     - tick
-    - command
     # Head camera images for a leader that shows them to the operator.
     - camera_head_left
     - camera_head_right
