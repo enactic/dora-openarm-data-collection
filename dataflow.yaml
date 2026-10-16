@@ -23,13 +23,7 @@
 #
 #   LEADER=webxr ROBOT=mujoco scripts/dora-envsubst run dataflow.yaml --uv
 #
-# All leader modules have the same inputs and outputs, and so do all robot
-# modules; see leader-ker.yaml and robot-cell.yaml. See docs/design.md for
-# the rules to follow when changing the modules, e.g. how they stop on Quit.
-#
-# The modules are next to this file because dora resolves `path:` in a module
-# relative to the module file: `path: dora-openarm` in modules/x.yaml would
-# become modules/dora-openarm and wouldn't be found in PATH.
+# See docs/design.md for the rules to follow when changing the modules.
 
 nodes:
   - id: ui

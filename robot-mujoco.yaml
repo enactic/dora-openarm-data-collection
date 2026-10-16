@@ -71,9 +71,8 @@ nodes:
       - elevation_action
       - elevation_observation
 
-  # The cameras are rendered from the leader's inputs, and a leader may wait
-  # for the cameras, e.g. WebXR. Close all inputs from the leader on Quit so
-  # that MuJoCo stops and closes the cameras whichever leader is used.
+  # Closes the inputs from the leader on Quit so that MuJoCo stops even if
+  # the leader waits for its cameras, e.g. WebXR.
   - id: quittable-controls
     path: dora-openarm-quitter
     inputs:

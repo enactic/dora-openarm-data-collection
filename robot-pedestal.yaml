@@ -67,8 +67,7 @@ nodes:
       - state
       - status
 
-  # Both followers send `state`/`status` but a module output must have one
-  # producer with the same name, so forward them with the common names.
+  # Renames the followers' outputs to the common names.
   - id: arms
     path: dora-echo
     inputs:
@@ -89,8 +88,8 @@ nodes:
       - elevation_action
       - elevation_observation
 
-  # The pedestal has no cameras. Close the camera outputs on Quit so that a
-  # leader that waits for them, e.g. WebXR, stops.
+  # No cameras. Closes the camera outputs on Quit for a leader that waits
+  # for them, e.g. WebXR.
   - id: quittable-cameras
     path: dora-openarm-quitter
     inputs:

@@ -34,7 +34,7 @@ module:
     - ker_position
     - metadata
 
-# Env paths are not rewritten: nodes run in the dataflow's directory.
+# Env paths are relative to dataflow.yaml's directory.
 nodes:
   - id: webxr
     path: dora-openarm-webxr
@@ -43,10 +43,9 @@ nodes:
       TLS_KEY_FILE: "nodes/dora-openarm-webxr/example/server.key"
       VIEW_CONFIGURATION_FILE: "view-webxr.yaml"
     inputs:
-      # Closing these inputs on Quit lets the WebXR server and peers shut down.
+      # WebXR stops when all its inputs are closed on Quit.
       tick: _mod/tick
-      # The head camera view in the headset; see view-webxr.yaml. The robot
-      # closes them on Quit.
+      # The head camera view in the headset; see view-webxr.yaml.
       camera_head_left:
         source: _mod/camera_head_left
         queue_size: 1
@@ -88,8 +87,7 @@ nodes:
       - position_left
       - status
 
-  # A module output keeps its inner name, so rename the IK outputs to the
-  # common `follower_position_*`.
+  # Renames the IK outputs to the common `follower_position_*`.
   - id: out
     path: dora-echo
     inputs:

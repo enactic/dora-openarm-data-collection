@@ -63,8 +63,7 @@ nodes:
       - position
       - status
 
-  # Both arms send `position`/`status` but a module output must have one
-  # producer with the same name, so forward them with the common names.
+  # Renames the arms' outputs to the common names.
   - id: arms
     path: dora-echo
     inputs:
@@ -127,9 +126,8 @@ nodes:
     outputs:
       - image
 
-  # Every camera sends `image`, so forward them with the common names.
-  # The cameras stop when `camera_tick` is closed on Quit, so these close
-  # too, and a leader that waits for them, e.g. WebXR, can stop.
+  # Renames `image` of each camera to the common names. Stops on Quit with
+  # the cameras because `camera_tick` is closed.
   - id: cameras
     path: dora-echo
     inputs:

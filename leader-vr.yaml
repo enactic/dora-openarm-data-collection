@@ -68,8 +68,7 @@ nodes:
       - position_left
       - status
 
-  # A module output keeps its inner name, so rename the IK outputs to the
-  # common `follower_position_*`.
+  # Renames the IK outputs to the common `follower_position_*`.
   - id: out
     path: dora-echo
     inputs:

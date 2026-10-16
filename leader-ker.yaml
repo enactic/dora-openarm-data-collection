@@ -14,15 +14,13 @@
 
 # LEADER=ker: KER leader arms over USB send joint positions directly.
 #
-# Every leader-*.yaml declares the same inputs and outputs so that
-# dataflow.yaml can wire whichever one LEADER picks. Inputs that this
-# leader doesn't use are ignored, and outputs that it doesn't have are
-# declared on a node that never sends them.
+# The inputs and outputs below are common to all leader-*.yaml; see
+# docs/design.md.
 module:
   name: leader-ker
   inputs:
     - tick
-    # Head camera images for a leader that shows them to the operator.
+    # Head camera images, e.g. for the WebXR headset.
     - camera_head_left
     - camera_head_right
   outputs:
@@ -57,8 +55,7 @@ nodes:
       - button_x
       - vr_receive_times
 
-  # The UI shows the KER panel once `ker_position` arrives, so only this
-  # leader sends it. A module output keeps its inner name, hence the rename.
+  # Only KER sends `ker_position`: the UI shows the KER panel when it arrives.
   - id: out
     path: dora-echo
     inputs:

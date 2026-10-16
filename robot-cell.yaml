@@ -15,10 +15,8 @@
 # ROBOT=cell: the real Cell. Followers on CAN, lifter, 4 cameras + stereo
 # splitter.
 #
-# Every robot-*.yaml declares the same inputs and outputs so that
-# dataflow.yaml can wire whichever one ROBOT picks. Inputs that this robot
-# doesn't use are ignored, and outputs that it doesn't have are declared on a
-# node that never sends them.
+# The inputs and outputs below are common to all robot-*.yaml; see
+# docs/design.md.
 module:
   name: robot-cell
   inputs:
@@ -81,8 +79,7 @@ nodes:
       - state
       - status
 
-  # Both followers send `state`/`status` but a module output must have one
-  # producer with the same name, so forward them with the common names.
+  # Renames the followers' outputs to the common names.
   - id: arms
     path: dora-echo
     inputs:
@@ -181,9 +178,8 @@ nodes:
     outputs:
       - image
 
-  # Every camera sends `image`, so forward them with the common names.
-  # The cameras stop when `camera_tick` is closed on Quit, so these close
-  # too, and a leader that waits for them, e.g. WebXR, can stop.
+  # Renames `image` of each camera to the common names. Stops on Quit with
+  # the cameras because `camera_tick` is closed.
   - id: cameras
     path: dora-echo
     inputs:
