@@ -62,20 +62,12 @@ dora doesn't expand environment variables in `module:` paths
 ([dora-rs/dora#3805](https://github.com/dora-rs/dora/issues/3805)), so run the
 dataflow through [`scripts/dora-envsubst`](scripts/dora-envsubst). It expands
 `$VAR`, `${VAR}` and `${VAR:-default}` in `module:` paths, writes the result to
-`<name>.envsubst.yaml` next to the given dataflow and runs the given dora
-command on it:
-
-```bash
-LEADER=ker ROBOT=cell scripts/dora-envsubst run dataflow.yaml --uv
-```
+`<name>.envsubst.yaml` and runs the given dora command on it.
 
 Only the selected leader and robot are in the dataflow, so the others open no
-device or port. All leader modules have the same inputs and outputs, and so do
-all robot modules; outputs a module doesn't have are declared but never sent.
-See [`docs/design.md`](docs/design.md) for how the modules are structured and
-how they stop on Quit.
-`LEADER=dummy` with `ROBOT=cell` or `ROBOT=pedestal` moves the real arms with
-generated motion.
+device or port. `LEADER=dummy` with `ROBOT=cell` or `ROBOT=pedestal` moves the
+real arms with generated motion. See [`docs/design.md`](docs/design.md) for how
+the modules are structured.
 
 The UI and the recorder use `metadata_$ROBOT.yaml`, and datasets are recorded
 under `data/$LEADER-$ROBOT/`, e.g. `data/webxr-mujoco/`:
@@ -114,7 +106,7 @@ WebXR requires HTTPS, so a TLS certificate is needed. A self-signed certificate 
 LEADER=webxr ROBOT=mujoco scripts/dora-envsubst run dataflow.yaml --uv
 ```
 
-Open http://localhost:8000/ on the local machine for the data collection UI, and open `https://${YOUR_HOST_NAME}:8443/` in the Web browser on your VR device (where `${HOSTNAME}` matches the value passed to `prepare_tls.sh`) to start teleoperation.
+Open http://localhost:8000/ on the local machine for the data collection UI, and open `https://<host name>:8443/` in the Web browser on your VR device (where `<host name>` is the value passed to `prepare_tls.sh`) to start teleoperation.
 
 ### Dummy leader
 
