@@ -6,15 +6,15 @@ leader and robot modules, or add a new leader or robot.
 ## Modules
 
 `dataflow.yaml` has the UI, the ticks, the recorder, and the `leader` and
-`robot` modules. `LEADER` picks `leader-$LEADER.yaml` and `ROBOT` picks
-`robot-$ROBOT.yaml`.
+`robot` modules. `LEADER` picks `modules/leader-$LEADER.yaml` and `ROBOT`
+picks `modules/robot-$ROBOT.yaml`.
 
 ### Common inputs and outputs
 
 All leader modules declare the same inputs and outputs, and so do all robot
 modules, so that `dataflow.yaml` can wire whichever one is picked. See
-[`leader-ker.yaml`](../leader-ker.yaml) and
-[`robot-cell.yaml`](../robot-cell.yaml) for them.
+[`modules/leader-ker.yaml`](../modules/leader-ker.yaml) and
+[`modules/robot-cell.yaml`](../modules/robot-cell.yaml) for them.
 
 - When we add an input or output, we add it to all leader or robot modules.
 - A module ignores inputs that it doesn't use.
@@ -30,12 +30,15 @@ when the names differ, or two inner nodes have the same output name, e.g.
 are the common names. We use `dora-echo` for it, or `dora-openarm-quitter` when
 the node also needs to close its outputs on Quit; see [Quit](#quit).
 
-### Where modules are
+### Command names in modules
 
-The modules are next to `dataflow.yaml`. dora resolves `path:` in a module
-relative to the module file, so `path: dora-openarm` in
-`modules/robot-cell.yaml` would become `modules/dora-openarm` and wouldn't be
-found in `PATH`.
+dora resolves `path:` in a module relative to the module file, so
+`path: dora-openarm` in `modules/robot-cell.yaml` would become
+`modules/dora-openarm` and wouldn't be found in `PATH`
+([dora-rs/dora#3826](https://github.com/dora-rs/dora/issues/3826)).
+`scripts/dora-module-shim` works around it by copying the modules next to
+`dataflow.yaml`. So `path:` in a module must be a command name, not a file
+relative to the module file.
 
 ## Quit
 

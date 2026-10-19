@@ -26,7 +26,7 @@ For example, to use WebXR with MuJoCo (no real arms required):
 
 ```bash
 ./nodes/dora-openarm-webxr/example/prepare_tls.sh "$(hostname).local"
-LEADER=webxr ROBOT=mujoco scripts/dora-envsubst run dataflow.yaml --uv
+LEADER=webxr ROBOT=mujoco scripts/dora-module-shim run dataflow.yaml --uv
 ```
 
 See [Configurations](#configurations) for the other leaders and robots, and the
@@ -51,18 +51,21 @@ See [uv's synchronization rules](https://docs.astral.sh/uv/concepts/projects/syn
 ## Configurations
 
 [`dataflow.yaml`](dataflow.yaml) is the only dataflow. The leader and the robot
-are modules next to it picked by environment variables:
+are modules under [`modules/`](modules) picked by environment variables:
 
 | Variable | Values | Picks | Default |
 |---|---|---|---|
-| `LEADER` | `ker`, `vr`, `webxr`, `dummy` | `leader-$LEADER.yaml` | `dummy` |
-| `ROBOT` | `cell` (real Cell), `pedestal`, `mujoco`, `dummy` | `robot-$ROBOT.yaml` | `dummy` |
+| `LEADER` | `ker`, `vr`, `webxr`, `dummy` | `modules/leader-$LEADER.yaml` | `dummy` |
+| `ROBOT` | `cell` (real Cell), `pedestal`, `mujoco`, `dummy` | `modules/robot-$ROBOT.yaml` | `dummy` |
 
 dora doesn't expand environment variables in `module:` paths
-([dora-rs/dora#3805](https://github.com/dora-rs/dora/issues/3805)), so run the
-dataflow through [`scripts/dora-envsubst`](scripts/dora-envsubst). It expands
-`$VAR`, `${VAR}` and `${VAR:-default}` in `module:` paths, writes the result to
-`<name>.envsubst.yaml` and runs the given dora command on it.
+([dora-rs/dora#3805](https://github.com/dora-rs/dora/issues/3805)) and can't
+find a command name in `path:` of a module in a subdirectory
+([dora-rs/dora#3826](https://github.com/dora-rs/dora/issues/3826)), so run the
+dataflow through [`scripts/dora-module-shim`](scripts/dora-module-shim). It
+expands `$VAR`, `${VAR}` and `${VAR:-default}` in `module:` paths, copies the
+modules next to the dataflow, writes the result to `<name>.shim.yaml`, runs the
+given dora command on it and removes the written files when dora exits.
 
 Only the selected leader and robot are in the dataflow, so the others open no
 device or port. `LEADER=dummy` with `ROBOT=cell` or `ROBOT=pedestal` moves the
@@ -103,7 +106,7 @@ WebXR requires HTTPS, so a TLS certificate is needed. A self-signed certificate 
 
 ```bash
 ./nodes/dora-openarm-webxr/example/prepare_tls.sh $(hostname).local
-LEADER=webxr ROBOT=mujoco scripts/dora-envsubst run dataflow.yaml --uv
+LEADER=webxr ROBOT=mujoco scripts/dora-module-shim run dataflow.yaml --uv
 ```
 
 Open http://localhost:8000/ on the local machine for the data collection UI, and open `https://<host name>:8443/` in the Web browser on your VR device (where `<host name>` is the value passed to `prepare_tls.sh`) to start teleoperation.

@@ -19,4 +19,4 @@
 # MuJoCo writes its warnings here.
 /MUJOCO_LOG.TXT
 *.txt
-*.envsubst.yaml
+*.shim.yaml
