@@ -16,7 +16,7 @@
 # splitter.
 #
 # The inputs and outputs below are common to all robot-*.yaml; see
-# docs/design.md.
+# docs/design.md. It also explains why `path:` starts with `../`.
 module:
   name: robot-cell
   inputs:
@@ -57,7 +57,7 @@ module:
 
 nodes:
   - id: right
-    path: dora-openarm
+    path: ../dora-openarm
     args: "--side right --align-trigger gripper --config openarm_cell_higher_pd_zero_offset"
     inputs:
       # Event ID is only used. Event value isn't used.
@@ -69,7 +69,7 @@ nodes:
       - status
 
   - id: left
-    path: dora-openarm
+    path: ../dora-openarm
     args: "--side left --align-trigger gripper --config openarm_cell_higher_pd_zero_offset"
     inputs:
       request_state: _mod/position_left
@@ -81,7 +81,7 @@ nodes:
 
   # Renames the followers' outputs to the common names.
   - id: arms
-    path: dora-echo
+    path: ../dora-echo
     inputs:
       state_right: right/state
       state_left: left/state
@@ -98,7 +98,7 @@ nodes:
       - status_left
 
   - id: lifter
-    path: dora-openarm-cell-lifter
+    path: ../dora-openarm-cell-lifter
     inputs:
       # The tick keeps the built-in hold behavior; the joystick comes only
       # from a VR leader.
@@ -109,7 +109,7 @@ nodes:
       - elevation_observation
 
   - id: wrist-right
-    path: opencv-video-capture
+    path: ../opencv-video-capture
     env:
       # Please configure!
       CAPTURE_PATH: "/dev/camera_wrist_right"
@@ -123,7 +123,7 @@ nodes:
       - image
 
   - id: wrist-left
-    path: opencv-video-capture
+    path: ../opencv-video-capture
     env:
       # Please configure!
       CAPTURE_PATH: "/dev/camera_wrist_left"
@@ -137,7 +137,7 @@ nodes:
       - image
 
   - id: head-stereo
-    path: opencv-video-capture
+    path: ../opencv-video-capture
     env:
       # Please configure!
       # Stereo camera: left and right images placed side by side in one frame.
@@ -151,7 +151,7 @@ nodes:
       - image
 
   - id: head-stereo-splitter
-    path: dora-opencv-image-splitter
+    path: ../dora-opencv-image-splitter
     env:
       SPLIT_MODE: "vertical"
       NUM_SPLITS: 2
@@ -165,7 +165,7 @@ nodes:
       - image_1
 
   - id: ceiling
-    path: opencv-video-capture
+    path: ../opencv-video-capture
     env:
       # Please configure!
       CAPTURE_PATH: "/dev/camera_ceiling"
@@ -181,7 +181,7 @@ nodes:
   # Renames `image` of each camera to the common names. Stops on Quit with
   # the cameras because `camera_tick` is closed.
   - id: cameras
-    path: dora-echo
+    path: ../dora-echo
     inputs:
       camera_wrist_right: wrist-right/image
       camera_wrist_left: wrist-left/image

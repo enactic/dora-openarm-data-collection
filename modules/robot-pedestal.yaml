@@ -45,7 +45,7 @@ module:
 
 nodes:
   - id: right
-    path: dora-openarm
+    path: ../dora-openarm
     args: "--side right --align-trigger gripper --config openarm_pedestal"
     inputs:
       # Event ID is only used. Event value isn't used.
@@ -57,7 +57,7 @@ nodes:
       - status
 
   - id: left
-    path: dora-openarm
+    path: ../dora-openarm
     args: "--side left --align-trigger gripper --config openarm_pedestal"
     inputs:
       request_state: _mod/position_left
@@ -69,7 +69,7 @@ nodes:
 
   # Renames the followers' outputs to the common names.
   - id: arms
-    path: dora-echo
+    path: ../dora-echo
     inputs:
       state_right: right/state
       state_left: left/state
@@ -91,7 +91,7 @@ nodes:
   # No cameras. Closes the camera outputs on Quit for a leader that waits
   # for them, e.g. WebXR.
   - id: quittable-cameras
-    path: dora-openarm-quitter
+    path: ../dora-openarm-quitter
     inputs:
       command: _mod/command
     outputs:
