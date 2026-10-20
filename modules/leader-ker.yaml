@@ -12,17 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# LEADER=dummy: generated joint positions, no hardware.
-# See leader-ker.yaml for the common inputs and outputs.
+# LEADER=ker: KER leader arms over USB send joint positions directly.
+#
+# The inputs and outputs below are common to all leader-*.yaml; see
+# docs/design.md. It also explains why `path:` starts with `../`.
 module:
-  name: leader-dummy
+  name: leader-ker
   inputs:
     - tick
+    # Head camera images, e.g. for the WebXR headset.
     - camera_head_left
     - camera_head_right
   outputs:
     - follower_position_right
     - follower_position_left
+    # VR controller poses for a robot that draws them.
     - pose_right
     - pose_left
     - joystick_y_left
@@ -34,19 +38,15 @@ module:
     - metadata
 
 nodes:
-  - id: dummy-ker
-    path: dora-openarm-dummy-ker
+  - id: ker
+    path: ../dora-openarm-ker
     inputs:
       tick: _mod/tick
     outputs:
-      - position_right
-      - position_left
       - follower_position_right
       - follower_position_left
-      - joystick_x
-      - joystick_y
-      - joystick_button
-      # Not sent by the dummy leader.
+      - metadata
+      # Not sent by KER.
       - pose_right
       - pose_left
       - joystick_y_left
@@ -54,5 +54,11 @@ nodes:
       - button_b
       - button_x
       - vr_receive_times
+
+  # Only KER sends `ker_position`: the UI shows the KER panel when it arrives.
+  - id: out
+    path: ../dora-echo
+    inputs:
+      ker_position: ker/follower_position_right
+    outputs:
       - ker_position
-      - metadata

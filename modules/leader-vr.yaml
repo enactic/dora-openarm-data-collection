@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# LEADER=webxr: the headset browser sends controller poses over HTTPS 8443 and
-# IK turns them into joint positions.
+# LEADER=vr: the Quest app sends controller poses over UDP 5006 and IK turns
+# them into joint positions.
 # See leader-ker.yaml for the common inputs and outputs.
 module:
-  name: leader-webxr
+  name: leader-vr
   inputs:
     - tick
     - camera_head_left
@@ -34,54 +34,35 @@ module:
     - ker_position
     - metadata
 
-# Env paths are relative to dataflow.yaml's directory.
 nodes:
-  - id: webxr
-    path: dora-openarm-webxr
-    env:
-      TLS_CERTIFICATE_FILE: "nodes/dora-openarm-webxr/example/server.crt"
-      TLS_KEY_FILE: "nodes/dora-openarm-webxr/example/server.key"
-      VIEW_CONFIGURATION_FILE: "view-webxr.yaml"
+  - id: udp-receiver
+    path: ../dora-openarm-quest-receiver
+    args: "--host 0.0.0.0 --port 5006"
     inputs:
-      # WebXR stops when all its inputs are closed on Quit.
       tick: _mod/tick
-      # The head camera view in the headset; see view-webxr.yaml.
-      camera_head_left:
-        source: _mod/camera_head_left
-        queue_size: 1
-      camera_head_right:
-        source: _mod/camera_head_right
-        queue_size: 1
     outputs:
       - pose_right
       - trigger_right
       - pose_left
       - trigger_left
-      - grip_right
-      - grip_left
-      - joystick_x_right
-      - joystick_y_right
-      - joystick_x_left
       - joystick_y_left
       - button_a
       - button_b
       - button_x
-      - button_y
       - status
       - vr_receive_times
-      - pose_reference
 
   - id: ik
-    path: dora-openarm-ik
+    path: ../dora-openarm-ik
     args: >-
       --mode bimanual --tick-hz 250
       --max-iters 5 --damping 0.1
       --posture-cost 0 --lm-damping 0.01 --limit-velocity
     inputs:
-      target_right: webxr/pose_right
-      target_left: webxr/pose_left
-      trigger_right: webxr/trigger_right
-      trigger_left: webxr/trigger_left
+      target_right: udp-receiver/pose_right
+      target_left: udp-receiver/pose_left
+      trigger_right: udp-receiver/trigger_right
+      trigger_left: udp-receiver/trigger_left
     outputs:
       - position_right
       - position_left
@@ -89,13 +70,13 @@ nodes:
 
   # Renames the IK outputs to the common `follower_position_*`.
   - id: out
-    path: dora-echo
+    path: ../dora-echo
     inputs:
       follower_position_right: ik/position_right
       follower_position_left: ik/position_left
     outputs:
       - follower_position_right
       - follower_position_left
-      # Not sent by WebXR.
+      # Not sent by VR.
       - ker_position
       - metadata
