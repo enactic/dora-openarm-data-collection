@@ -54,11 +54,11 @@ leader's targets. So a robot must close the outputs that a leader uses, e.g.
 `camera_*`, on Quit without waiting for the leader:
 
 - A node that depends only on `_mod/tick` and `_mod/camera_tick` stops by
-  itself, e.g. the cameras of the Cell and dummy robots.
+  itself, e.g. the cameras of the Cell, pedestal and dummy robots.
 - A node that also depends on the leader must get the leader's outputs through
   a `dora-openarm-quitter`, e.g. the MuJoCo robot's `quittable-controls`.
 - Outputs that are never sent must be declared on a `dora-openarm-quitter` with
-  only `command: _mod/command`, e.g. the pedestal's `quittable-cameras`.
+  only `command: _mod/command`, e.g. the pedestal's `quittable-ceiling`.
 
 Other nodes, e.g. the followers, and the leaders stop after what they depend on
 stops, so they don't need a quitter.

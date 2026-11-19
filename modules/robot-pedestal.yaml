@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# ROBOT=pedestal: real arms on a pedestal. Followers on CAN only, no lifter
-# and no cameras.
+# ROBOT=pedestal: real arms on a pedestal. Followers on CAN, 2 wrist cameras
+# + head stereo camera with its splitter. No lifter and no ceiling camera.
 # See robot-cell.yaml for the common inputs and outputs.
 module:
   name: robot-pedestal
@@ -88,16 +88,82 @@ nodes:
       - elevation_action
       - elevation_observation
 
-  # No cameras. Closes the camera outputs on Quit for a leader that waits
-  # for them, e.g. WebXR.
-  - id: quittable-cameras
+  - id: wrist-right
+    path: ../opencv-video-capture
+    env:
+      # Please configure!
+      CAPTURE_PATH: "/dev/camera_wrist_right"
+      ENCODING: "jpeg"
+      IMAGE_HEIGHT: 600
+      IMAGE_WIDTH: 960
+      JPEG_QUALITY: 90
+    inputs:
+      tick: _mod/camera_tick
+    outputs:
+      - image
+
+  - id: wrist-left
+    path: ../opencv-video-capture
+    env:
+      # Please configure!
+      CAPTURE_PATH: "/dev/camera_wrist_left"
+      ENCODING: "jpeg"
+      IMAGE_HEIGHT: 600
+      IMAGE_WIDTH: 960
+      JPEG_QUALITY: 90
+    inputs:
+      tick: _mod/camera_tick
+    outputs:
+      - image
+
+  - id: head-stereo
+    path: ../opencv-video-capture
+    env:
+      # Please configure!
+      # Stereo camera: left and right images placed side by side in one frame.
+      CAPTURE_PATH: "/dev/camera_head_stereo"
+      ENCODING: "bgr8"
+      IMAGE_HEIGHT: 720
+      IMAGE_WIDTH: 2560
+    inputs:
+      tick: _mod/camera_tick
+    outputs:
+      - image
+
+  - id: head-stereo-splitter
+    path: ../dora-opencv-image-splitter
+    env:
+      SPLIT_MODE: "vertical"
+      NUM_SPLITS: 2
+      JPEG_QUALITY: 90
+      IMAGE_HEIGHT: 720
+      IMAGE_WIDTH: 2560
+    inputs:
+      image: head-stereo/image
+    outputs:
+      - image_0
+      - image_1
+
+  # Renames `image` of each camera to the common names. Stops on Quit with
+  # the cameras because `camera_tick` is closed.
+  - id: cameras
+    path: ../dora-echo
+    inputs:
+      camera_wrist_right: wrist-right/image
+      camera_wrist_left: wrist-left/image
+      camera_head_left: head-stereo-splitter/image_0
+      camera_head_right: head-stereo-splitter/image_1
+    outputs:
+      - camera_wrist_right
+      - camera_wrist_left
+      - camera_head_left
+      - camera_head_right
+
+  # No ceiling camera. Closes its output on Quit.
+  - id: quittable-ceiling
     path: ../dora-openarm-quitter
     inputs:
       command: _mod/command
     outputs:
       # Not sent by the pedestal.
-      - camera_wrist_right
-      - camera_wrist_left
-      - camera_head_left
-      - camera_head_right
       - camera_ceiling
