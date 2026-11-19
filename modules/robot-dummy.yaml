@@ -104,7 +104,12 @@ nodes:
 
   - id: head-left
     path: ../dora-openarm-dummy-camera
-    env: *dummy_camera_env
+    # The same size as one side of `head-stereo` in robot-cell.yaml.
+    env: &dummy_head_camera_env
+      ENCODING: "jpeg"
+      IMAGE_HEIGHT: 720
+      IMAGE_WIDTH: 1280
+      JPEG_QUALITY: 90
     inputs:
       tick: _mod/camera_tick
     outputs:
@@ -112,7 +117,7 @@ nodes:
 
   - id: head-right
     path: ../dora-openarm-dummy-camera
-    env: *dummy_camera_env
+    env: *dummy_head_camera_env
     inputs:
       tick: _mod/camera_tick
     outputs:
