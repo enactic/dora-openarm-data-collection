@@ -27,4 +27,8 @@ equipment:
       id: OpenArm
       version: "2.0"
   perceptions:
-    cameras: {}
+    cameras:
+      wrist_left: {}
+      wrist_right: {}
+      head_left: {}
+      head_right: {}

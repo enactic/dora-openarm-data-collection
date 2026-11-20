@@ -75,7 +75,7 @@ under `data/$LEADER-$ROBOT/`, e.g. `data/webxr-mujoco/`:
 | Robot | Metadata | Recorded equipment |
 |---|---|---|
 | `cell` | [`metadata_cell.yaml`](metadata_cell.yaml) | Arms, lifter, five cameras |
-| `pedestal` | [`metadata_pedestal.yaml`](metadata_pedestal.yaml) | Arms only |
+| `pedestal` | [`metadata_pedestal.yaml`](metadata_pedestal.yaml) | Arms, four cameras |
 | `mujoco` | [`metadata_mujoco.yaml`](metadata_mujoco.yaml) | Arms, five simulated cameras |
 | `dummy` | [`metadata_dummy.yaml`](metadata_dummy.yaml) | Arms, five dummy cameras |
 
@@ -125,8 +125,9 @@ required on `can2` by default, and startup enables and moves it for calibration.
 
 ### Pedestal robot
 
-`ROBOT=pedestal` uses real OpenArm units on a pedestal over CAN. It has no
-lifter and no cameras. The followers use the `openarm_pedestal` configuration.
+`ROBOT=pedestal` uses real OpenArm units on a pedestal over CAN. It has wrist
+and head cameras but no lifter and no ceiling camera. The followers use the
+`openarm_pedestal` configuration.
 
 ### MuJoCo robot
 
